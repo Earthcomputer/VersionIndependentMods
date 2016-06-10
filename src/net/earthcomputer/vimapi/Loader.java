@@ -124,8 +124,7 @@ public class Loader {
 					jarFile.close();
 					Launch.classLoader.addURL(candidate.toURI().toURL());
 				} catch (ZipException e) {
-					VIM.LOGGER
-							.error("The file " + candidate.getName() + " does not have a valid ZIP format, skipping");
+					VIM.LOGGER.error("The file " + candidate.getName() + " does not have a valid ZIP format, skipping");
 				}
 			}
 		}

@@ -1,4 +1,4 @@
-package net.earthcomputer.vimapi.core;
+package net.earthcomputer.vimapi.core.classfinder;
 
 import java.io.File;
 import java.io.IOException;
@@ -125,9 +125,7 @@ public class ClassFinder {
 	}
 
 	private static UsefulNames examineClassByConstants(String className, byte[] bytes) {
-		StringSearcher stringSearcher = new StringSearcher(bytes);
-		stringSearcher.search();
-		List<String> foundStrings = stringSearcher.getFoundStrings();
+		Set<String> foundStrings = ClassConstants.readFromBytes(bytes).getStringRefs();
 
 		if (foundStrings.containsAll(NBT_BASE_STRINGS)) {
 			examineNBTBase(bytes);

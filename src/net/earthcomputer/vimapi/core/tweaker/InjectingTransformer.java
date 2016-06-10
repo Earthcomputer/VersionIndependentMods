@@ -7,8 +7,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import net.earthcomputer.vimapi.core.ClassFinder;
-import net.earthcomputer.vimapi.core.UsefulNames;
+import net.earthcomputer.vimapi.core.classfinder.ClassFinder;
+import net.earthcomputer.vimapi.core.classfinder.UsefulNames;
 import net.minecraft.launchwrapper.IClassTransformer;
 
 public class InjectingTransformer implements IClassTransformer {

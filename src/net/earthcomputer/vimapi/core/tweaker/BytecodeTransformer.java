@@ -37,12 +37,12 @@ import net.earthcomputer.vimapi.core.Bytecode;
 import net.earthcomputer.vimapi.core.BytecodeMethod;
 import net.earthcomputer.vimapi.core.ChangeType;
 import net.earthcomputer.vimapi.core.ClassChecker;
-import net.earthcomputer.vimapi.core.ClassFinder;
 import net.earthcomputer.vimapi.core.ContainsInlineBytecode;
 import net.earthcomputer.vimapi.core.DetailClassVisitor;
 import net.earthcomputer.vimapi.core.DetailClassVisitor.ClassVisitFailedException;
+import net.earthcomputer.vimapi.core.classfinder.ClassFinder;
+import net.earthcomputer.vimapi.core.classfinder.UsefulNames;
 import net.earthcomputer.vimapi.core.InlineOps;
-import net.earthcomputer.vimapi.core.UsefulNames;
 import net.minecraft.launchwrapper.IClassTransformer;
 
 public class BytecodeTransformer implements IClassTransformer {

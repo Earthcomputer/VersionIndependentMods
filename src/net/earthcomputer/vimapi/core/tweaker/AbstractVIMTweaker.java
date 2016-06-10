@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import net.earthcomputer.vimapi.VIM;
-import net.earthcomputer.vimapi.core.ClassFinder;
+import net.earthcomputer.vimapi.core.classfinder.ClassFinder;
 import net.minecraft.launchwrapper.ITweaker;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 
@@ -27,6 +27,9 @@ public abstract class AbstractVIMTweaker implements ITweaker {
 
 	@Override
 	public void injectIntoClassLoader(LaunchClassLoader classLoader) {
+		classLoader.addClassLoaderExclusion(VIM.class.getName());
+		classLoader.addClassLoaderExclusion("net.earthcomputer.vimapi.core.classfinder.");
+
 		ClassFinder.searchURLsForClasses(classLoader.getURLs(), getLaunchTarget());
 
 		for (String transformer : TRANSFORMERS) {

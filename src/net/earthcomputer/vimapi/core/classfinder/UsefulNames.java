@@ -1,4 +1,4 @@
-package net.earthcomputer.vimapi.core;
+package net.earthcomputer.vimapi.core.classfinder;
 
 import net.earthcomputer.vimapi.EnumSide;
 
