@@ -20,7 +20,6 @@ import org.objectweb.asm.Type;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
-import net.earthcomputer.vimapi.core.tweaker.AbstractVIMTweaker;
 import net.minecraft.launchwrapper.Launch;
 
 public class Loader {
@@ -35,12 +34,12 @@ public class Loader {
 	}
 
 	private static void constructMods() {
-		File modsDir = AbstractVIMTweaker.getModsDir();
+		File modsDir = VIM.getModsDir();
 
 		if (!modsDir.isDirectory()) {
-			AbstractVIMTweaker.LOGGER.info("Identified no mods to load");
+			VIM.LOGGER.info("Identified no mods to load");
 		} else {
-			AbstractVIMTweaker.LOGGER.info("Searching " + modsDir + " for mods");
+			VIM.LOGGER.info("Searching " + modsDir + " for mods");
 			List<String> modClasses = Lists.newArrayList();
 			try {
 				searchDirForMods(modsDir, modClasses);
@@ -48,18 +47,18 @@ public class Loader {
 				throw Throwables.propagate(e);
 			}
 			if (modClasses.isEmpty()) {
-				AbstractVIMTweaker.LOGGER.info("Identified no mods to load");
+				VIM.LOGGER.info("Identified no mods to load");
 			}
-			AbstractVIMTweaker.LOGGER.info("Identified " + modClasses.size() + " mods to load:");
-			AbstractVIMTweaker.LOGGER.info(modClasses);
+			VIM.LOGGER.info("Identified " + modClasses.size() + " mods to load:");
+			VIM.LOGGER.info(modClasses);
 
-			AbstractVIMTweaker.LOGGER.info("Starting construction...");
+			VIM.LOGGER.info("Starting construction...");
 			for (String modClass : modClasses) {
 				Class<?> clazz;
 				try {
 					clazz = Class.forName(modClass);
 				} catch (ClassNotFoundException e) {
-					AbstractVIMTweaker.LOGGER.error("It looks like you have a corrupt mod file");
+					VIM.LOGGER.error("It looks like you have a corrupt mod file");
 					throw Throwables.propagate(e);
 				}
 				VimMod theMod = clazz.getAnnotation(VimMod.class);
@@ -77,7 +76,7 @@ public class Loader {
 				try {
 					instance = clazz.newInstance();
 				} catch (Exception e) {
-					AbstractVIMTweaker.LOGGER.error("The class " + modClass + " (belonging to mod " + name
+					VIM.LOGGER.error("The class " + modClass + " (belonging to mod " + name
 							+ ") does not have a zero-argument constructor");
 					throw Throwables.propagate(e);
 				}
@@ -90,7 +89,7 @@ public class Loader {
 		File[] candidates = dir.listFiles();
 		for (File candidate : candidates) {
 			if (candidate.isDirectory()) {
-				AbstractVIMTweaker.LOGGER.info("Also searching " + candidate + " for mods");
+				VIM.LOGGER.info("Also searching " + candidate + " for mods");
 				searchDirForMods(candidate, modClasses);
 			} else if (candidate.getName().endsWith(".jar") || candidate.getName().endsWith(".zip")) {
 				try {
@@ -125,7 +124,7 @@ public class Loader {
 					jarFile.close();
 					Launch.classLoader.addURL(candidate.toURI().toURL());
 				} catch (ZipException e) {
-					AbstractVIMTweaker.LOGGER
+					VIM.LOGGER
 							.error("The file " + candidate.getName() + " does not have a valid ZIP format, skipping");
 				}
 			}
@@ -133,7 +132,7 @@ public class Loader {
 	}
 
 	private static void preInitializeMods() {
-		AbstractVIMTweaker.LOGGER.info("Starting pre-initialization...");
+		VIM.LOGGER.info("Starting pre-initialization...");
 		callLifecycleEvent(LifecycleEventType.PREINIT);
 	}
 
@@ -147,7 +146,7 @@ public class Loader {
 					try {
 						method.invoke(instance);
 					} catch (Exception e) {
-						AbstractVIMTweaker.LOGGER.error("Exception calling preinit method");
+						VIM.LOGGER.error("Exception calling preinit method");
 						throw Throwables.propagate(e);
 					}
 				}

@@ -32,6 +32,7 @@ import org.objectweb.asm.util.Printer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.earthcomputer.vimapi.VIM;
 import net.earthcomputer.vimapi.core.Bytecode;
 import net.earthcomputer.vimapi.core.BytecodeMethod;
 import net.earthcomputer.vimapi.core.ChangeType;
@@ -150,14 +151,14 @@ public class BytecodeTransformer implements IClassTransformer {
 				node.accept(new DetailClassVisitor(writer));
 				return writer.toByteArray();
 			} catch (ClassVisitFailedException e) {
-				AbstractVIMTweaker.LOGGER.info("--------------------------");
-				AbstractVIMTweaker.LOGGER.info("FOUND SOMETHING WRONG WITH YOUR BYTECODE!");
+				VIM.LOGGER.info("--------------------------");
+				VIM.LOGGER.info("FOUND SOMETHING WRONG WITH YOUR BYTECODE!");
 				if (e.getCurrentMemberName() != null) {
-					AbstractVIMTweaker.LOGGER
+					VIM.LOGGER
 							.info("CURRENT MEMBER: " + e.getCurrentMemberName() + " " + e.getCurrentMemberDesc());
 				}
 				if (e.getLineNumber() != -1) {
-					AbstractVIMTweaker.LOGGER.info("LINE NUMBER: " + e.getLineNumber());
+					VIM.LOGGER.info("LINE NUMBER: " + e.getLineNumber());
 				}
 				throw e;
 			}
@@ -194,7 +195,7 @@ public class BytecodeTransformer implements IClassTransformer {
 					try {
 						newInsns.add(getBytecodeInsn(methodInsn, labels));
 					} catch (Exception e) {
-						AbstractVIMTweaker.LOGGER.error("ERROR HAPPENED AT LINE " + lineNumber);
+						VIM.LOGGER.error("ERROR HAPPENED AT LINE " + lineNumber);
 						throw e;
 					}
 				}

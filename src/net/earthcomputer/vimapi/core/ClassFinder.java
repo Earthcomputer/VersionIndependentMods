@@ -24,7 +24,7 @@ import org.objectweb.asm.tree.MethodNode;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import net.earthcomputer.vimapi.core.tweaker.AbstractVIMTweaker;
+import net.earthcomputer.vimapi.VIM;
 
 public class ClassFinder {
 
@@ -111,17 +111,15 @@ public class ClassFinder {
 		Set<UsefulNames> unableToFind = Sets.newHashSet();
 		for (UsefulNames usefulName : UsefulNames.values()) {
 			if (!usefulNames.containsKey(usefulName)) {
-				if (usefulName.getWorkingSide() == null
-						|| usefulName.getWorkingSide() == AbstractVIMTweaker.getSide()) {
+				if (usefulName.getWorkingSide() == null || usefulName.getWorkingSide() == VIM.getSide()) {
 					unableToFind.add(usefulName);
 				}
 			}
 		}
 		if (!unableToFind.isEmpty()) {
-			AbstractVIMTweaker.LOGGER
-					.error("WARNING: UNABLE TO FIND THE FOLLOWING USEFUL NAMES, THIS COULD CAUSE SERIOUS ISSUES:");
+			VIM.LOGGER.error("WARNING: UNABLE TO FIND THE FOLLOWING USEFUL NAMES, THIS COULD CAUSE SERIOUS ISSUES:");
 			for (UsefulNames usefulName : unableToFind) {
-				AbstractVIMTweaker.LOGGER.error(usefulName);
+				VIM.LOGGER.error(usefulName);
 			}
 		}
 	}
