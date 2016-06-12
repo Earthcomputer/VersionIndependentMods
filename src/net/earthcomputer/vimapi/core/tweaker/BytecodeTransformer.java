@@ -40,9 +40,8 @@ import net.earthcomputer.vimapi.core.ClassChecker;
 import net.earthcomputer.vimapi.core.ContainsInlineBytecode;
 import net.earthcomputer.vimapi.core.DetailClassVisitor;
 import net.earthcomputer.vimapi.core.DetailClassVisitor.ClassVisitFailedException;
-import net.earthcomputer.vimapi.core.classfinder.ClassFinder;
-import net.earthcomputer.vimapi.core.classfinder.UsefulNames;
 import net.earthcomputer.vimapi.core.InlineOps;
+import net.earthcomputer.vimapi.core.classfinder.UsefulNames;
 import net.minecraft.launchwrapper.IClassTransformer;
 
 public class BytecodeTransformer implements IClassTransformer {
@@ -154,8 +153,7 @@ public class BytecodeTransformer implements IClassTransformer {
 				VIM.LOGGER.info("--------------------------");
 				VIM.LOGGER.info("FOUND SOMETHING WRONG WITH YOUR BYTECODE!");
 				if (e.getCurrentMemberName() != null) {
-					VIM.LOGGER
-							.info("CURRENT MEMBER: " + e.getCurrentMemberName() + " " + e.getCurrentMemberDesc());
+					VIM.LOGGER.info("CURRENT MEMBER: " + e.getCurrentMemberName() + " " + e.getCurrentMemberDesc());
 				}
 				if (e.getLineNumber() != -1) {
 					VIM.LOGGER.info("LINE NUMBER: " + e.getLineNumber());
@@ -510,7 +508,7 @@ public class BytecodeTransformer implements IClassTransformer {
 		int end = 0;
 		while (matcher.find()) {
 			newString.append(matcher.group(1));
-			newString.append(ClassFinder.getObfedName(UsefulNames.valueOf(matcher.group(2))));
+			newString.append(UsefulNames.get(matcher.group(2)));
 			end = matcher.end();
 		}
 		if (end < unobfed.length()) {

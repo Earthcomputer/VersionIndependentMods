@@ -1,7 +1,9 @@
 package net.earthcomputer.vimapi;
 
 import java.io.File;
+import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +13,8 @@ import com.google.common.collect.Lists;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import net.earthcomputer.vimapi.core.classfinder.ClassFinder;
+import net.earthcomputer.vimapi.core.classfinder.UsefulNames;
 
 public class VIM {
 	public static final Logger LOGGER = LogManager.getLogger("VIM");
@@ -21,6 +25,19 @@ public class VIM {
 	private static File modsDir;
 
 	private static EnumSide side;
+
+	public static void findClasses(URL[] urls, String mainClass) {
+		ClassFinder.searchURLsForClasses(urls, mainClass);
+
+		Set<String> unfoundNames = UsefulNames.getUnfoundEntries();
+		if (!unfoundNames.isEmpty()) {
+			LOGGER.error("UNABLE TO FIND THE FOLLOWING USEFUL NAMES, ABORTING:");
+			for (String unfoundName : unfoundNames) {
+				LOGGER.error(unfoundName);
+			}
+			throw new IllegalStateException();
+		}
+	}
 
 	public static List<String> acceptArgs(List<String> args, File gameDir) {
 		if (isLocked) {

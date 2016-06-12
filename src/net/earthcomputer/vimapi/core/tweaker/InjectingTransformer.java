@@ -7,7 +7,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import net.earthcomputer.vimapi.core.classfinder.ClassFinder;
 import net.earthcomputer.vimapi.core.classfinder.UsefulNames;
 import net.minecraft.launchwrapper.IClassTransformer;
 
@@ -19,11 +18,11 @@ public class InjectingTransformer implements IClassTransformer {
 			return null;
 		}
 
-		if (name.equals(ClassFinder.getObfedName(UsefulNames.MINECRAFT))) {
+		if (name.equals(UsefulNames.get("vim:Minecraft"))) {
 			return transformMinecraft(bytes);
 		}
 
-		if (name.equals(ClassFinder.getObfedName(UsefulNames.DEDICATED_SERVER))) {
+		if (name.equals(UsefulNames.get("vim:DedicatedServer"))) {
 			return transformDedicatedServer(bytes);
 		}
 
@@ -36,8 +35,7 @@ public class InjectingTransformer implements IClassTransformer {
 		reader.accept(node, ClassReader.SKIP_FRAMES);
 
 		for (MethodNode method : node.methods) {
-			if (method.name.equals(ClassFinder.getObfedName(UsefulNames.MINECRAFT_STARTGAME))
-					&& method.desc.equals("()V")) {
+			if (method.name.equals(UsefulNames.get("vim:Minecraft.startGame")) && method.desc.equals("()V")) {
 				method.instructions.insert(new MethodInsnNode(Opcodes.INVOKESTATIC, "net/earthcomputer/vimapi/Loader",
 						"beginLoading", "()V", false));
 			}
@@ -54,8 +52,7 @@ public class InjectingTransformer implements IClassTransformer {
 		reader.accept(node, ClassReader.SKIP_FRAMES);
 
 		for (MethodNode method : node.methods) {
-			if (method.name.equals(ClassFinder.getObfedName(UsefulNames.DEDICATED_SERVER_STARTSERVER))
-					&& method.desc.equals("()Z")) {
+			if (method.name.equals(UsefulNames.get("vim:DedicatedServer.startServer")) && method.desc.equals("()Z")) {
 				method.instructions.insert(new MethodInsnNode(Opcodes.INVOKESTATIC, "net/earthcomputer/vimapi/Loader",
 						"beginLoading", "()V", false));
 			}

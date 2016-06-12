@@ -46,7 +46,10 @@ public class VIMTweakerFML implements IFMLLoadingPlugin {
 		List<String> args = (List<String>) Launch.blackboard.get("ArgumentList");
 		args = VIM.acceptArgs(args, (File) data.get("mcLocation"));
 		Launch.blackboard.put("ArgumentList", args);
-		VIM.setSide(FMLLaunchHandler.side() == Side.CLIENT ? EnumSide.CLIENT : EnumSide.SERVER);
+		Side side = FMLLaunchHandler.side();
+		VIM.setSide(side == Side.CLIENT ? EnumSide.CLIENT : EnumSide.SERVER);
+		VIM.findClasses(Launch.classLoader.getURLs(),
+				side == Side.CLIENT ? "net.minecraft.client.main.Main" : "net.minecraft.server.MinecraftServer");
 		VIM.lock();
 	}
 

@@ -1,52 +1,122 @@
 package net.earthcomputer.vimapi.core.classfinder;
 
+import java.util.Map;
+import java.util.Set;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import net.earthcomputer.vimapi.EnumSide;
+import net.earthcomputer.vimapi.VIM;
 
-public enum UsefulNames {
+public class UsefulNames {
 
-	// @formatter:off
-
-	MINECRAFT(EnumSide.CLIENT),
-	MINECRAFT_STARTGAME(EnumSide.CLIENT),
-	
-	DEDICATED_SERVER(EnumSide.SERVER),
-	DEDICATED_SERVER_STARTSERVER(EnumSide.SERVER),
-	
-	NBT_BASE, NBT_PRIMITIVE, NBT_BYTE, NBT_SHORT, NBT_INT, NBT_LONG, NBT_FLOAT, NBT_DOUBLE, NBT_BYTE_ARRAY, NBT_STRING, NBT_LIST, NBT_COMPOUND, NBT_INT_ARRAY,
-	NBT_BASE_GETTYPE, NBT_BASE_CREATENEWBYTYPE,
-	NBT_BYTE_DATA, NBT_SHORT_DATA, NBT_INT_DATA, NBT_LONG_DATA, NBT_FLOAT_DATA, NBT_DOUBLE_DATA, NBT_BYTE_ARRAY_DATA, NBT_STRING_DATA, NBT_LIST_DATA, NBT_LIST_TAG_TYPE, NBT_COMPOUND_DATA, NBT_INT_ARRAY_DATA,
-	
-	REGISTRY_NAMESPACED,
-	REGISTRY_NAMESPACED_INVERSEOBJECTREGISTRY,
-	
-	ITEM,
-	ITEM_GETBYNAME, ITEM_ITEMREGISTRY,
-	
-	ITEM_STACK,
-	ITEM_STACK_ITEM, ITEM_STACK_DAMAGE, ITEM_STACK_STACKSIZE, ITEM_STACK_TAG,
-	
-	CRAFTING_MANAGER,
-	CRAFTING_MANAGER_INSTANCE, CRAFTING_MANAGER_ADDSHAPEDRECIPE, CRAFTING_MANAGER_ADDSHAPELESSRECIPE, CRAFTING_MANAGER_ADDRECIPE,
-	
-	SHAPED_RECIPE,
-	IRECIPE
-	
-	;
-
-	// @formatter:on
-
-	private final EnumSide sideToWorkOn;
+	private static final Map<String, UsefulName> usefulNames = Maps.newHashMap();
 
 	private UsefulNames() {
-		sideToWorkOn = null;
 	}
 
-	private UsefulNames(EnumSide sideToWorkOn) {
-		this.sideToWorkOn = sideToWorkOn;
+	public static void expect(String key) {
+		expect(key, null);
 	}
 
-	public EnumSide getWorkingSide() {
-		return sideToWorkOn;
+	public static void expect(String key, EnumSide onSide) {
+		usefulNames.put(key, new UsefulName(onSide));
+	}
+
+	public static void found(String key, String name) {
+		if (!usefulNames.containsKey(key)) {
+			throw new IllegalArgumentException("There is no such useful name as \"" + key + "\"");
+		}
+		usefulNames.get(key).name = name;
+	}
+
+	public static String get(String key) {
+		if (!usefulNames.containsKey(key)) {
+			throw new IllegalArgumentException("There is no such useful name as \"" + key + "\"");
+		}
+		return usefulNames.get(key).name;
+	}
+
+	public static Set<String> getUnfoundEntries() {
+		Set<String> notFound = Sets.newHashSet();
+		for (Map.Entry<String, UsefulName> entry : usefulNames.entrySet()) {
+			UsefulName usefulName = entry.getValue();
+			if (usefulName.name == null) {
+				if (usefulName.side == null || usefulName.side == VIM.getSide()) {
+					notFound.add(entry.getKey());
+				}
+			}
+		}
+		return notFound;
+	}
+
+	private static class UsefulName {
+		private String name;
+		private EnumSide side;
+
+		public UsefulName(EnumSide side) {
+			this.side = side;
+		}
+	}
+
+	static {
+		expect("vim:Minecraft", EnumSide.CLIENT);
+		expect("vim:Minecraft.startGame", EnumSide.CLIENT);
+
+		expect("vim:DedicatedServer", EnumSide.SERVER);
+		expect("vim:DedicatedServer.startServer", EnumSide.SERVER);
+
+		expect("vim:NBTBase");
+		expect("vim:NBTPrimitive");
+		expect("vim:NBTByte");
+		expect("vim:NBTShort");
+		expect("vim:NBTInt");
+		expect("vim:NBTLong");
+		expect("vim:NBTFloat");
+		expect("vim:NBTDouble");
+		expect("vim:NBTByteArray");
+		expect("vim:NBTString");
+		expect("vim:NBTList");
+		expect("vim:NBTCompound");
+		expect("vim:NBTIntArray");
+		expect("vim:NBTBase.getType");
+		expect("vim:NBTBase.createNewByType");
+		expect("vim:NBTByte.data");
+		expect("vim:NBTShort.data");
+		expect("vim:NBTInt.data");
+		expect("vim:NBTLong.data");
+		expect("vim:NBTFloat.data");
+		expect("vim:NBTDouble.data");
+		expect("vim:NBTByteArray.data");
+		expect("vim:NBTString.data");
+		expect("vim:NBTList.data");
+		expect("vim:NBTList.tagType");
+		expect("vim:NBTCompound.data");
+		expect("vim:NBTIntArray.data");
+
+		expect("vim:RegistryNamespaced");
+		expect("vim:RegistryNamespaced.inverseObjectRegistry");
+
+		expect("vim:Item");
+		expect("vim:Item.getByName");
+		expect("vim:Item.itemRegistry");
+
+		expect("vim:ItemStack");
+		expect("vim:ItemStack.item");
+		expect("vim:ItemStack.damage");
+		expect("vim:ItemStack.stackSize");
+		expect("vim:ItemStack.tag");
+
+		expect("vim:CraftingManager");
+		expect("vim:CraftingManager.instance");
+		expect("vim:CraftingManager.addShapedRecipe");
+		expect("vim:CraftingManager.addShapelessRecipe");
+		expect("vim:CraftingManager.addRecipe");
+
+		expect("vim:ShapedRecipe");
+
+		expect("vim:IRecipe");
 	}
 
 }

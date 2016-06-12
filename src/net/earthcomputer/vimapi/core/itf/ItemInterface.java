@@ -12,18 +12,18 @@ public class ItemInterface {
 	}
 
 	@BytecodeMethod
-	@ChangeType("L{ITEM};")
+	@ChangeType("L{vim:Item};")
 	private static Object getItemByName(String name) {
 		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.method(Opcodes.INVOKESTATIC, "{ITEM}", "{ITEM_GETBYNAME}", "(Ljava/lang/String;)L{ITEM};", false);
+		Bytecode.method(Opcodes.INVOKESTATIC, "{vim:Item}", "{vim:Item.getByName}", "(Ljava/lang/String;)L{vim:Item};", false);
 		Bytecode.insn(Opcodes.ARETURN);
 		return null;
 	}
 
 	@BytecodeMethod
-	private static String getNameFromItem(@ChangeType("L{ITEM};") Object item) {
-		Bytecode.field(Opcodes.GETSTATIC, "{ITEM}", "{ITEM_ITEMREGISTRY}", "L{REGISTRY_NAMESPACED};");
-		Bytecode.field(Opcodes.GETFIELD, "{REGISTRY_NAMESPACED}", "{REGISTRY_NAMESPACED_INVERSEOBJECTREGISTRY}",
+	private static String getNameFromItem(@ChangeType("L{vim:Item};") Object item) {
+		Bytecode.field(Opcodes.GETSTATIC, "{vim:Item}", "{vim:Item.itemRegistry}", "L{vim:RegistryNamespaced};");
+		Bytecode.field(Opcodes.GETFIELD, "{vim:RegistryNamespaced}", "{vim:RegistryNamespaced.inverseObjectRegistry}",
 				"Ljava/util/Map;");
 		Bytecode.var(Opcodes.ALOAD, 0);
 		Bytecode.method(Opcodes.INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;",

@@ -14,26 +14,28 @@ public class CraftingManagerInterface {
 	}
 
 	@BytecodeMethod
-	@ChangeType("L{CRAFTING_MANAGER};")
+	@ChangeType("L{vim:CraftingManager};")
 	private static Object getInstance() {
-		Bytecode.field(Opcodes.GETSTATIC, "{CRAFTING_MANAGER}", "{CRAFTING_MANAGER_INSTANCE}", "L{CRAFTING_MANAGER};");
+		Bytecode.field(Opcodes.GETSTATIC, "{vim:CraftingManager}", "{vim:CraftingManager.instance}",
+				"L{vim:CraftingManager};");
 		Bytecode.insn(Opcodes.ARETURN);
 		return null;
 	}
 
 	@ContainsInlineBytecode
-	private static void addShapedRecipe(@ChangeType("L{ITEM_STACK};") Object result, Object[] args) {
+	private static void addShapedRecipe(@ChangeType("L{vim:ItemStack};") Object result, Object[] args) {
 		Object craftingManager = getInstance();
-		InlineOps.method(Opcodes.INVOKEVIRTUAL, "{CRAFTING_MANAGER}", "{CRAFTING_MANAGER_ADDSHAPEDRECIPE}")
-				.returnType("L{SHAPED_RECIPE};").param("L{ITEM_STACK};").param(Object[].class).arg(craftingManager)
-				.arg(result).arg(args).invokeObject();
+		InlineOps.method(Opcodes.INVOKEVIRTUAL, "{vim:CraftingManager}", "{vim:CraftingManager.addShapedRecipe}")
+				.returnType("L{vim:ShapedRecipe};").param("L{vim:ItemStack};").param(Object[].class)
+				.arg(craftingManager).arg(result).arg(args).invokeObject();
 	}
 
 	@ContainsInlineBytecode
-	private static void addShapelessRecipe(@ChangeType("L{ITEM_STACK};") Object result, Object[] args) {
+	private static void addShapelessRecipe(@ChangeType("L{vim:ItemStack};") Object result, Object[] args) {
 		Object craftingManager = getInstance();
-		InlineOps.method(Opcodes.INVOKEVIRTUAL, "{CRAFTING_MANAGER}", "{CRAFTING_MANAGER_ADDSHAPELESSRECIPE}")
-				.param("L{ITEM_STACK};").param(Object[].class).arg(craftingManager).arg(result).arg(args).invokeVoid();
+		InlineOps.method(Opcodes.INVOKEVIRTUAL, "{vim:CraftingManager}", "{vim:CraftingManager.addShapelessRecipe}")
+				.param("L{vim:ItemStack};").param(Object[].class).arg(craftingManager).arg(result).arg(args)
+				.invokeVoid();
 	}
 
 }
