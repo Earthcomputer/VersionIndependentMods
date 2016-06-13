@@ -1,6 +1,6 @@
 package net.earthcomputer.vimapi.nbt;
 
-public class NBTDouble extends NBTBase {
+public class NBTDouble extends NBTPrimitive {
 
 	private double data;
 
@@ -8,13 +8,39 @@ public class NBTDouble extends NBTBase {
 		this.data = val;
 	}
 
-	public double get() {
-		return data;
+	@Override
+	public byte getType() {
+		return TYPE_DOUBLE;
 	}
 
 	@Override
-	public byte getType() {
-		return 6;
+	public byte getByte() {
+		return (byte) data;
+	}
+
+	@Override
+	public short getShort() {
+		return (short) data;
+	}
+
+	@Override
+	public int getInt() {
+		return (int) data;
+	}
+
+	@Override
+	public long getLong() {
+		return (long) data;
+	}
+
+	@Override
+	public float getFloat() {
+		return (float) data;
+	}
+
+	@Override
+	public double getDouble() {
+		return data;
 	}
 
 }

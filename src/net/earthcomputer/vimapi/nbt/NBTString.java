@@ -5,6 +5,9 @@ public class NBTString extends NBTBase {
 	private String data;
 
 	public NBTString(String val) {
+		if (val.isEmpty()) {
+			throw new IllegalArgumentException("NBTString cannot contain an empty string");
+		}
 		this.data = val;
 	}
 
@@ -14,7 +17,7 @@ public class NBTString extends NBTBase {
 
 	@Override
 	public byte getType() {
-		return 8;
+		return TYPE_STRING;
 	}
 
 }

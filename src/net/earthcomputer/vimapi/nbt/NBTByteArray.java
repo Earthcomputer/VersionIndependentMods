@@ -14,7 +14,7 @@ public class NBTByteArray extends NBTBase {
 
 	@Override
 	public byte getType() {
-		return 7;
+		return TYPE_BYTE_ARRAY;
 	}
 
 }

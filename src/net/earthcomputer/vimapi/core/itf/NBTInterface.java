@@ -177,36 +177,36 @@ public class NBTInterface {
 		}
 		byte type = getNBTType(nbt);
 		switch (type) {
-		case 1:
+		case NBTBase.TYPE_BYTE:
 			return new NBTByte(getNBTByteData(InlineOps.checkcast(nbt, "{vim:NBTByte}")));
-		case 2:
+		case NBTBase.TYPE_SHORT:
 			return new NBTShort(getNBTShortData(InlineOps.checkcast(nbt, "{vim:NBTShort}")));
-		case 3:
+		case NBTBase.TYPE_INT:
 			return new NBTInt(getNBTIntData(InlineOps.checkcast(nbt, "{vim:NBTInt}")));
-		case 4:
+		case NBTBase.TYPE_LONG:
 			return new NBTLong(getNBTLongData(InlineOps.checkcast(nbt, "{vim:NBTLong}")));
-		case 5:
+		case NBTBase.TYPE_FLOAT:
 			return new NBTFloat(getNBTFloatData(InlineOps.checkcast(nbt, "{vim:NBTFloat}")));
-		case 6:
+		case NBTBase.TYPE_DOUBLE:
 			return new NBTDouble(getNBTDoubleData(InlineOps.checkcast(nbt, "{vim:NBTDouble}")));
-		case 7:
+		case NBTBase.TYPE_BYTE_ARRAY:
 			return new NBTByteArray(getNBTByteArrayData(InlineOps.checkcast(nbt, "{vim:NBTByteArray}")));
-		case 8:
+		case NBTBase.TYPE_STRING:
 			return new NBTString(getNBTStringData(InlineOps.checkcast(nbt, "{vim:NBTString}")));
-		case 9:
+		case NBTBase.TYPE_LIST:
 			NBTList list = new NBTList();
 			for (Object nbtInList : getNBTListData(InlineOps.checkcast(nbt, "{vim:NBTList}"))) {
 				list.add(translateFromMC(InlineOps.checkcast(nbtInList, "{vim:NBTBase}")));
 			}
 			return list;
-		case 10:
+		case NBTBase.TYPE_COMPOUND:
 			NBTCompound compound = new NBTCompound();
 			for (Map.Entry<String, ?> entry : getNBTCompoundData(InlineOps.checkcast(nbt, "{vim:NBTCompound}"))
 					.entrySet()) {
 				compound.set(entry.getKey(), translateFromMC(InlineOps.checkcast(entry.getValue(), "{vim:NBTBase}")));
 			}
 			return compound;
-		case 11:
+		case NBTBase.TYPE_INT_ARRAY:
 			return new NBTIntArray(getNBTIntArrayData(InlineOps.checkcast(nbt, "{vim:NBTIntArray}")));
 		default:
 			throw new RuntimeException("Unknown NBT type: " + type);
@@ -222,45 +222,45 @@ public class NBTInterface {
 		byte type = nbt.getType();
 		Object mcNBT = createNewNBTByType(type);
 		switch (type) {
-		case 1:
-			setNBTByteData(InlineOps.checkcast(mcNBT, "{vim:NBTByte}"), ((NBTByte) nbt).get());
+		case NBTBase.TYPE_BYTE:
+			setNBTByteData(InlineOps.checkcast(mcNBT, "{vim:NBTByte}"), ((NBTByte) nbt).getByte());
 			break;
-		case 2:
-			setNBTShortData(InlineOps.checkcast(mcNBT, "{vim:NBTShort}"), ((NBTShort) nbt).get());
+		case NBTBase.TYPE_SHORT:
+			setNBTShortData(InlineOps.checkcast(mcNBT, "{vim:NBTShort}"), ((NBTShort) nbt).getShort());
 			break;
-		case 3:
-			setNBTIntData(InlineOps.checkcast(mcNBT, "{vim:NBTInt}"), ((NBTInt) nbt).get());
+		case NBTBase.TYPE_INT:
+			setNBTIntData(InlineOps.checkcast(mcNBT, "{vim:NBTInt}"), ((NBTInt) nbt).getInt());
 			break;
-		case 4:
-			setNBTLongData(InlineOps.checkcast(mcNBT, "{vim:NBTLong}"), ((NBTLong) nbt).get());
+		case NBTBase.TYPE_LONG:
+			setNBTLongData(InlineOps.checkcast(mcNBT, "{vim:NBTLong}"), ((NBTLong) nbt).getLong());
 			break;
-		case 5:
-			setNBTFloatData(InlineOps.checkcast(mcNBT, "{vim:NBTFloat}"), ((NBTFloat) nbt).get());
+		case NBTBase.TYPE_FLOAT:
+			setNBTFloatData(InlineOps.checkcast(mcNBT, "{vim:NBTFloat}"), ((NBTFloat) nbt).getFloat());
 			break;
-		case 6:
-			setNBTDoubleData(InlineOps.checkcast(mcNBT, "{vim:NBTDouble}"), ((NBTDouble) nbt).get());
+		case NBTBase.TYPE_DOUBLE:
+			setNBTDoubleData(InlineOps.checkcast(mcNBT, "{vim:NBTDouble}"), ((NBTDouble) nbt).getDouble());
 			break;
-		case 7:
+		case NBTBase.TYPE_BYTE_ARRAY:
 			setNBTByteArrayData(InlineOps.checkcast(mcNBT, "{vim:NBTByteArray}"), ((NBTByteArray) nbt).get());
 			break;
-		case 8:
+		case NBTBase.TYPE_STRING:
 			setNBTStringData(InlineOps.checkcast(mcNBT, "{vim:NBTString}"), ((NBTString) nbt).get());
 			break;
-		case 9:
+		case NBTBase.TYPE_LIST:
 			List<Object> list = Lists.newArrayList();
 			for (NBTBase element : (NBTList) nbt) {
 				list.add(translateToMC(element));
 			}
 			setNBTListData(InlineOps.checkcast(mcNBT, "{vim:NBTList}"), list);
 			break;
-		case 10:
+		case NBTBase.TYPE_COMPOUND:
 			Map<String, Object> compound = Maps.newHashMap();
 			for (Map.Entry<String, NBTBase> entry : (NBTCompound) nbt) {
 				compound.put(entry.getKey(), translateToMC(entry.getValue()));
 			}
 			setNBTCompoundData(InlineOps.checkcast(mcNBT, "{vim:NBTCompound}"), compound);
 			break;
-		case 11:
+		case NBTBase.TYPE_INT_ARRAY:
 			setNBTIntArrayData(InlineOps.checkcast(mcNBT, "{vim:NBTIntArray}"), ((NBTIntArray) nbt).get());
 			break;
 		default:
