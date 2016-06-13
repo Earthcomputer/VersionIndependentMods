@@ -16,61 +16,35 @@ public class ItemStackInterface {
 	private ItemStackInterface() {
 	}
 
-	// @BytecodeMethod
 	@ContainsInlineBytecode
 	@ChangeType("L{vim:Item};")
 	private static Object getItem(@ChangeType("L{vim:ItemStack};") Object itemStack) {
-		// Bytecode.var(Opcodes.ALOAD, 0);
-		// Bytecode.field(Opcodes.GETFIELD, "{vim:ItemStack}",
-		// "{vim:ItemStack.item}", "L{vim:Item};");
-		// Bytecode.insn(Opcodes.ARETURN);
 		return InlineOps.field(Opcodes.GETFIELD, "{vim:ItemStack}", "{vim:ItemStack.item}").type("L{vim:Item};")
 				.instance(itemStack).getObject();
 	}
 
-	// @BytecodeMethod
 	@ContainsInlineBytecode
 	private static int getStackSize(@ChangeType("L{vim:ItemStack};") Object itemStack) {
-		// Bytecode.var(Opcodes.ALOAD, 0);
-		// Bytecode.field(Opcodes.GETFIELD, "{vim:ItemStack}",
-		// "{vim:ItemStack.stackSize}", "I");
-		// Bytecode.insn(Opcodes.IRETURN);
 		return InlineOps.field(Opcodes.GETFIELD, "{vim:ItemStack}", "{vim:ItemStack.stackSize}").instance(itemStack)
 				.getInt();
 	}
 
-	// @BytecodeMethod
 	@ContainsInlineBytecode
 	private static int getDamage(@ChangeType("L{vim:ItemStack};") Object itemStack) {
-		// Bytecode.var(Opcodes.ALOAD, 0);
-		// Bytecode.field(Opcodes.GETFIELD, "{vim:ItemStack}",
-		// "{vim:ItemStack.damage}", "I");
-		// Bytecode.insn(Opcodes.IRETURN);
 		return InlineOps.field(Opcodes.GETFIELD, "{vim:ItemStack}", "{vim:ItemStack.damage}").instance(itemStack)
 				.getInt();
 	}
 
-	// @BytecodeMethod
 	@ContainsInlineBytecode
 	@ChangeType("L{vim:NBTCompound};")
 	private static Object getTag(@ChangeType("L{vim:ItemStack};") Object itemStack) {
-		// Bytecode.var(Opcodes.ALOAD, 0);
-		// Bytecode.field(Opcodes.GETFIELD, "{vim:ItemStack}",
-		// "{vim:ItemStack.tag}", "L{vim:NBTCompound};");
-		// Bytecode.insn(Opcodes.ARETURN);
 		return InlineOps.field(Opcodes.GETFIELD, "{vim:ItemStack}", "{vim:ItemStack.tag}").type("L{vim:NBTCompound};")
 				.instance(itemStack).getObject();
 	}
 
-	// @BytecodeMethod
 	@ContainsInlineBytecode
 	private static void setTag(@ChangeType("L{vim:ItemStack};") Object itemStack,
 			@ChangeType("L{vim:NBTCompound};") Object newTag) {
-		// Bytecode.var(Opcodes.ALOAD, 0);
-		// Bytecode.var(Opcodes.ALOAD, 1);
-		// Bytecode.field(Opcodes.PUTFIELD, "{vim:ItemStack}",
-		// "{vim:ItemStack.tag}", "L{vim:NBTCompound};");
-		// Bytecode.insn(Opcodes.RETURN);
 		InlineOps.field(Opcodes.PUTFIELD, "{vim:ItemStack}", "{vim:ItemStack.tag}").type("L{vim:NBTCompound};")
 				.instance(itemStack).setObject(newTag);
 	}

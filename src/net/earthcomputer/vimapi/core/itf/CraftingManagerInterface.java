@@ -11,14 +11,9 @@ public class CraftingManagerInterface {
 	private CraftingManagerInterface() {
 	}
 
-	// @BytecodeMethod
 	@ContainsInlineBytecode
 	@ChangeType("L{vim:CraftingManager};")
 	private static Object getInstance() {
-		// Bytecode.field(Opcodes.GETSTATIC, "{vim:CraftingManager}",
-		// "{vim:CraftingManager.instance}",
-		// "L{vim:CraftingManager};");
-		// Bytecode.insn(Opcodes.ARETURN);
 		return InlineOps.field(Opcodes.GETSTATIC, "{vim:CraftingManager}", "{vim:CraftingManager.instance}")
 				.type("L{vim:CraftingManager};").getObject();
 	}
@@ -35,8 +30,8 @@ public class CraftingManagerInterface {
 	private static void addShapelessRecipe(@ChangeType("L{vim:ItemStack};") Object result, Object[] args) {
 		Object craftingManager = getInstance();
 		InlineOps.method(Opcodes.INVOKEVIRTUAL, "{vim:CraftingManager}", "{vim:CraftingManager.addShapelessRecipe}")
-				.param("L{vim:ItemStack};").param(Object[].class).argObject(craftingManager).argObject(result).argObject(args)
-				.invokeVoid();
+				.param("L{vim:ItemStack};").param(Object[].class).argObject(craftingManager).argObject(result)
+				.argObject(args).invokeVoid();
 	}
 
 }
