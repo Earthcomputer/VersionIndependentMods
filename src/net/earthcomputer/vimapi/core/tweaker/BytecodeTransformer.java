@@ -52,6 +52,7 @@ public class BytecodeTransformer implements IClassTransformer {
 	private static final String BYTECODE_NAME = Type.getInternalName(Bytecode.class);
 	private static final String INLINE_OPS_NAME = Type.getInternalName(InlineOps.class);
 	private static final String METHOD_OP_NAME = Type.getInternalName(InlineOps.MethodOp.class);
+	private static final String FIELD_OP_NAME = Type.getInternalName(InlineOps.FieldOp.class);
 
 	private static final Pattern OBF_PATTERN = Pattern.compile("([^\\Q{\\E]*)\\Q{\\E([^\\Q}\\E]+)\\Q}\\E");
 
@@ -322,6 +323,15 @@ public class BytecodeTransformer implements IClassTransformer {
 						argInsn = lastRealInsn(argInsn);
 						int opcode = getIntFromInsn(argInsn);
 						handleMethodOp(method.instructions, insn, opcode, owner, methodName);
+					} else if (op.equals("field")) {
+						String fieldName = getStringFromInsn(argInsn);
+						fieldName = obfuscate(fieldName);
+						argInsn = lastRealInsn(argInsn);
+						String owner = getInternalNameFromInsn(argInsn);
+						owner = obfuscate(owner);
+						argInsn = lastRealInsn(argInsn);
+						int opcode = getIntFromInsn(argInsn);
+						handleFieldOp(method.instructions, insn, opcode, owner, fieldName);
 					}
 					// Repeat this, as the next instruction may have been
 					// removed or changed
@@ -349,66 +359,68 @@ public class BytecodeTransformer implements IClassTransformer {
 			nextInsn = currentInsn.getNext();
 			if (currentInsn.getType() == AbstractInsnNode.METHOD_INSN) {
 				MethodInsnNode currentMethodInsn = (MethodInsnNode) currentInsn;
-				if (currentMethodInsn.owner.equals(METHOD_OP_NAME)) {
-					if (currentInsn.getOpcode() == Opcodes.INVOKESTATIC) {
-						if (currentMethodInsn.owner.equals(INLINE_OPS_NAME)
-								&& currentMethodInsn.name.equals("method")) {
-							amountNested++;
-						}
-					} else if (currentInsn.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-						if (currentMethodInsn.owner.equals(METHOD_OP_NAME)) {
-							if (amountNested > 0) {
-								if (currentMethodInsn.name.startsWith("invoke")) {
-									amountNested--;
+				if (currentInsn.getOpcode() == Opcodes.INVOKESTATIC) {
+					if (currentMethodInsn.owner.equals(INLINE_OPS_NAME) && currentMethodInsn.name.equals("method")) {
+						amountNested++;
+					}
+				} else if (currentInsn.getOpcode() == Opcodes.INVOKEVIRTUAL) {
+					if (currentMethodInsn.owner.equals(METHOD_OP_NAME)) {
+						if (amountNested > 0) {
+							if (currentMethodInsn.name.startsWith("invoke")) {
+								amountNested--;
+							}
+						} else {
+							if (currentMethodInsn.name.equals("returnType")) {
+								argInsn = lastRealInsn(currentInsn);
+								returnTypeName = getDescriptorFromInsn(argInsn);
+								instructions.remove(argInsn);
+								instructions.remove(currentInsn);
+							} else if (currentMethodInsn.name.equals("param")) {
+								argInsn = lastRealInsn(currentInsn);
+								parameters.add(getDescriptorFromInsn(argInsn));
+								instructions.remove(argInsn);
+								instructions.remove(currentInsn);
+							} else if (currentMethodInsn.name.startsWith("arg")) {
+								instructions.remove(currentInsn);
+							} else if (currentMethodInsn.name.startsWith("invoke")) {
+								Type[] paramTypes = new Type[parameters.size()];
+								for (int i = 0; i < paramTypes.length; i++) {
+									paramTypes[i] = Type.getType(parameters.get(i));
 								}
-							} else {
-								if (currentMethodInsn.name.equals("returnType")) {
-									argInsn = lastRealInsn(currentInsn);
-									returnTypeName = getDescriptorFromInsn(argInsn);
-									instructions.remove(argInsn);
-									instructions.remove(currentInsn);
-								} else if (currentMethodInsn.name.equals("param")) {
-									argInsn = lastRealInsn(currentInsn);
-									parameters.add(getDescriptorFromInsn(argInsn));
-									instructions.remove(argInsn);
-									instructions.remove(currentInsn);
-								} else if (currentMethodInsn.name.equals("arg")) {
-									instructions.remove(currentInsn);
-								} else if (currentMethodInsn.name.startsWith("invoke")) {
-									Type[] paramTypes = new Type[parameters.size()];
-									for (int i = 0; i < paramTypes.length; i++) {
-										paramTypes[i] = Type.getType(parameters.get(i));
-									}
-									String invokeType = currentMethodInsn.name.substring(6);
-									Type returnType;
-									if (invokeType.equals("Boolean")) {
-										returnType = Type.BOOLEAN_TYPE;
-									} else if (invokeType.equals("Byte")) {
-										returnType = Type.BYTE_TYPE;
-									} else if (invokeType.equals("Char")) {
-										returnType = Type.CHAR_TYPE;
-									} else if (invokeType.equals("Double")) {
-										returnType = Type.DOUBLE_TYPE;
-									} else if (invokeType.equals("Float")) {
-										returnType = Type.FLOAT_TYPE;
-									} else if (invokeType.equals("Int")) {
-										returnType = Type.INT_TYPE;
-									} else if (invokeType.equals("Long")) {
-										returnType = Type.LONG_TYPE;
-									} else if (invokeType.equals("Short")) {
-										returnType = Type.SHORT_TYPE;
-									} else if (invokeType.equals("Void")) {
-										returnType = Type.VOID_TYPE;
-									} else {
-										returnType = Type.getType(returnTypeName);
-									}
-									instructions.insert(currentInsn,
-											new MethodInsnNode(opcode, owner, methodName,
-													Type.getMethodDescriptor(returnType, paramTypes),
-													opcode == Opcodes.INVOKEINTERFACE));
-									instructions.remove(currentInsn);
-									return;
+								String invokeType = currentMethodInsn.name.substring(6);
+								Type returnType;
+								if (invokeType.equals("Boolean")) {
+									returnType = Type.BOOLEAN_TYPE;
+								} else if (invokeType.equals("Byte")) {
+									returnType = Type.BYTE_TYPE;
+								} else if (invokeType.equals("Char")) {
+									returnType = Type.CHAR_TYPE;
+								} else if (invokeType.equals("Double")) {
+									returnType = Type.DOUBLE_TYPE;
+								} else if (invokeType.equals("Float")) {
+									returnType = Type.FLOAT_TYPE;
+								} else if (invokeType.equals("Int")) {
+									returnType = Type.INT_TYPE;
+								} else if (invokeType.equals("Long")) {
+									returnType = Type.LONG_TYPE;
+								} else if (invokeType.equals("Short")) {
+									returnType = Type.SHORT_TYPE;
+								} else if (invokeType.equals("Void")) {
+									returnType = Type.VOID_TYPE;
+								} else {
+									returnType = Type.getType(returnTypeName);
 								}
+								boolean itfMethod = opcode == Opcodes.INVOKEINTERFACE;
+								String methodDesc = Type.getMethodDescriptor(returnType, paramTypes);
+								instructions
+										.insert(currentInsn,
+												new MethodInsnNode(opcode, owner,
+														itfMethod ? methodName
+																: "access$method_" + AccessTransformer
+																		.getMemberId(owner, methodName, methodDesc),
+														methodDesc, itfMethod));
+								instructions.remove(currentInsn);
+								return;
 							}
 						}
 					}
@@ -417,6 +429,110 @@ public class BytecodeTransformer implements IClassTransformer {
 			currentInsn = nextInsn;
 		}
 		throw new RuntimeException("No invoke instruction reached");
+	}
+
+	private static void handleFieldOp(InsnList instructions, AbstractInsnNode methodInsn, int opcode, String owner,
+			String fieldName) {
+		String typeName = null;
+		int amountNested = 0;
+
+		AbstractInsnNode currentInsn = methodInsn.getNext(), nextInsn, argInsn;
+		while (currentInsn != null) {
+			nextInsn = currentInsn.getNext();
+			if (currentInsn.getType() == AbstractInsnNode.METHOD_INSN) {
+				MethodInsnNode currentMethodInsn = (MethodInsnNode) currentInsn;
+				if (currentInsn.getOpcode() == Opcodes.INVOKESTATIC) {
+					if (currentMethodInsn.owner.equals(INLINE_OPS_NAME) && currentMethodInsn.name.equals("field")) {
+						amountNested++;
+					}
+				} else if (currentInsn.getOpcode() == Opcodes.INVOKEVIRTUAL) {
+					if (currentMethodInsn.owner.equals(FIELD_OP_NAME)) {
+						if (amountNested > 0) {
+							if (currentMethodInsn.name.startsWith("get") || currentMethodInsn.name.startsWith("set")) {
+								amountNested--;
+							}
+						} else {
+							if (currentMethodInsn.name.equals("type")) {
+								argInsn = lastRealInsn(currentInsn);
+								typeName = getDescriptorFromInsn(argInsn);
+								instructions.remove(argInsn);
+								instructions.remove(currentInsn);
+							} else if (currentMethodInsn.name.equals("instance")) {
+								instructions.remove(currentInsn);
+							} else if (currentMethodInsn.name.startsWith("get")) {
+								String getType = currentMethodInsn.name.substring(3);
+								Type fieldType;
+								if (getType.equals("Boolean")) {
+									fieldType = Type.BOOLEAN_TYPE;
+								} else if (getType.equals("Byte")) {
+									fieldType = Type.BYTE_TYPE;
+								} else if (getType.equals("Char")) {
+									fieldType = Type.CHAR_TYPE;
+								} else if (getType.equals("Double")) {
+									fieldType = Type.DOUBLE_TYPE;
+								} else if (getType.equals("Float")) {
+									fieldType = Type.FLOAT_TYPE;
+								} else if (getType.equals("Int")) {
+									fieldType = Type.INT_TYPE;
+								} else if (getType.equals("Long")) {
+									fieldType = Type.LONG_TYPE;
+								} else if (getType.equals("Short")) {
+									fieldType = Type.SHORT_TYPE;
+								} else {
+									fieldType = Type.getType(typeName);
+								}
+								String fieldDesc = fieldType.getDescriptor();
+								instructions.insert(currentInsn,
+										new MethodInsnNode(
+												opcode == Opcodes.GETSTATIC ? Opcodes.INVOKESTATIC
+														: Opcodes.INVOKEVIRTUAL,
+												owner,
+												"access$getfield_"
+														+ AccessTransformer.getMemberId(owner, fieldName, fieldDesc),
+												"()" + fieldDesc, false));
+								instructions.remove(currentInsn);
+								return;
+							} else if (currentMethodInsn.name.startsWith("set")) {
+								String setType = currentMethodInsn.name.substring(3);
+								Type fieldType;
+								if (setType.equals("Boolean")) {
+									fieldType = Type.BOOLEAN_TYPE;
+								} else if (setType.equals("Byte")) {
+									fieldType = Type.BYTE_TYPE;
+								} else if (setType.equals("Char")) {
+									fieldType = Type.CHAR_TYPE;
+								} else if (setType.equals("Double")) {
+									fieldType = Type.DOUBLE_TYPE;
+								} else if (setType.equals("Float")) {
+									fieldType = Type.FLOAT_TYPE;
+								} else if (setType.equals("Int")) {
+									fieldType = Type.INT_TYPE;
+								} else if (setType.equals("Long")) {
+									fieldType = Type.LONG_TYPE;
+								} else if (setType.equals("Short")) {
+									fieldType = Type.SHORT_TYPE;
+								} else {
+									fieldType = Type.getType(typeName);
+								}
+								String fieldDesc = fieldType.getDescriptor();
+								instructions.insert(currentInsn,
+										new MethodInsnNode(
+												opcode == Opcodes.PUTSTATIC ? Opcodes.INVOKESTATIC
+														: Opcodes.INVOKEVIRTUAL,
+												owner,
+												"access$setfield_"
+														+ AccessTransformer.getMemberId(owner, fieldName, fieldDesc),
+												"(" + fieldDesc + ")V", false));
+								instructions.remove(currentInsn);
+								return;
+							}
+						}
+					}
+				}
+			}
+			currentInsn = nextInsn;
+		}
+		throw new RuntimeException("No get or set instruction reached");
 	}
 
 	private static AbstractInsnNode lastRealInsn(AbstractInsnNode insn) {

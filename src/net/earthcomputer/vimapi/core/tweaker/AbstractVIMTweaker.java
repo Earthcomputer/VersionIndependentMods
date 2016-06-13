@@ -11,8 +11,12 @@ public abstract class AbstractVIMTweaker implements ITweaker {
 
 	protected List<String> args;
 
-	static final String[] TRANSFORMERS = new String[] { BytecodeTransformer.class.getName(),
-			AllPublicTransformer.class.getName(), InjectingTransformer.class.getName() };
+	static final String[] TRANSFORMERS = new String[] { "net.earthcomputer.vimapi.core.tweaker.BytecodeTransformer",
+			"net.earthcomputer.vimapi.core.tweaker.AccessTransformer",
+			"net.earthcomputer.vimapi.core.tweaker.InjectingTransformer" };
+	static final String[] CLASS_LOADER_EXCLUSIONS = new String[] { "net.earthcomputer.vimapi.VIM" };
+	static final String[] TRANSFORMER_EXCLUSIONS = new String[] { "net.earthcomputer.vimapi.core.classfinder.",
+			"net.earthcomputer.vimapi.EnumSide" };
 
 	@Override
 	public void acceptOptions(List<String> args, File gameDir, File assetsDir, String version) {
@@ -26,8 +30,13 @@ public abstract class AbstractVIMTweaker implements ITweaker {
 
 	@Override
 	public void injectIntoClassLoader(LaunchClassLoader classLoader) {
-		classLoader.addClassLoaderExclusion(VIM.class.getName());
-		classLoader.addClassLoaderExclusion("net.earthcomputer.vimapi.core.classfinder.");
+		for (String exclusion : CLASS_LOADER_EXCLUSIONS) {
+			classLoader.addClassLoaderExclusion(exclusion);
+		}
+
+		for (String exclusion : TRANSFORMER_EXCLUSIONS) {
+			classLoader.addTransformerExclusion(exclusion);
+		}
 
 		VIM.findClasses(classLoader.getURLs(), getLaunchTarget());
 

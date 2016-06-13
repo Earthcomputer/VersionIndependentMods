@@ -16,57 +16,74 @@ public class ItemStackInterface {
 	private ItemStackInterface() {
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	@ChangeType("L{vim:Item};")
 	private static Object getItem(@ChangeType("L{vim:ItemStack};") Object itemStack) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:ItemStack}", "{vim:ItemStack.item}", "L{vim:Item};");
-		Bytecode.insn(Opcodes.ARETURN);
-		return null;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:ItemStack}",
+		// "{vim:ItemStack.item}", "L{vim:Item};");
+		// Bytecode.insn(Opcodes.ARETURN);
+		return InlineOps.field(Opcodes.GETFIELD, "{vim:ItemStack}", "{vim:ItemStack.item}").type("L{vim:Item};")
+				.instance(itemStack).getObject();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static int getStackSize(@ChangeType("L{vim:ItemStack};") Object itemStack) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:ItemStack}", "{vim:ItemStack.stackSize}", "I");
-		Bytecode.insn(Opcodes.IRETURN);
-		return 0;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:ItemStack}",
+		// "{vim:ItemStack.stackSize}", "I");
+		// Bytecode.insn(Opcodes.IRETURN);
+		return InlineOps.field(Opcodes.GETFIELD, "{vim:ItemStack}", "{vim:ItemStack.stackSize}").instance(itemStack)
+				.getInt();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static int getDamage(@ChangeType("L{vim:ItemStack};") Object itemStack) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:ItemStack}", "{vim:ItemStack.damage}", "I");
-		Bytecode.insn(Opcodes.IRETURN);
-		return 0;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:ItemStack}",
+		// "{vim:ItemStack.damage}", "I");
+		// Bytecode.insn(Opcodes.IRETURN);
+		return InlineOps.field(Opcodes.GETFIELD, "{vim:ItemStack}", "{vim:ItemStack.damage}").instance(itemStack)
+				.getInt();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	@ChangeType("L{vim:NBTCompound};")
 	private static Object getTag(@ChangeType("L{vim:ItemStack};") Object itemStack) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:ItemStack}", "{vim:ItemStack.tag}", "L{vim:NBTCompound};");
-		Bytecode.insn(Opcodes.ARETURN);
-		return null;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:ItemStack}",
+		// "{vim:ItemStack.tag}", "L{vim:NBTCompound};");
+		// Bytecode.insn(Opcodes.ARETURN);
+		return InlineOps.field(Opcodes.GETFIELD, "{vim:ItemStack}", "{vim:ItemStack.tag}").type("L{vim:NBTCompound};")
+				.instance(itemStack).getObject();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setTag(@ChangeType("L{vim:ItemStack};") Object itemStack,
 			@ChangeType("L{vim:NBTCompound};") Object newTag) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.ALOAD, 1);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:ItemStack}", "{vim:ItemStack.tag}", "L{vim:NBTCompound};");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.ALOAD, 1);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:ItemStack}",
+		// "{vim:ItemStack.tag}", "L{vim:NBTCompound};");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:ItemStack}", "{vim:ItemStack.tag}").type("L{vim:NBTCompound};")
+				.instance(itemStack).setObject(newTag);
 	}
 
 	@ContainsInlineBytecode
 	private static ItemStack translateFromMC(@ChangeType("L{vim:ItemStack};") Object itemStack) {
 		return new ItemStack(
 				(String) InlineOps.method(Opcodes.INVOKESTATIC, ItemInterface.class, "getNameFromItem")
-						.returnType(String.class).param("L{vim:Item};").arg(getItem(itemStack)).invokeObject(),
+						.returnType(String.class).param("L{vim:Item};").argObject(getItem(itemStack)).invokeObject(),
 				getDamage(itemStack), getStackSize(itemStack),
 				(NBTCompound) InlineOps.method(Opcodes.INVOKESTATIC, NBTInterface.class, "translateFromMC")
-						.returnType(NBTBase.class).param("L{vim:NBTBase};").arg(getTag(itemStack)).invokeObject());
+						.returnType(NBTBase.class).param("L{vim:NBTBase};").argObject(getTag(itemStack))
+						.invokeObject());
 	}
 
 	@BytecodeMethod
@@ -87,12 +104,12 @@ public class ItemStackInterface {
 	private static Object translateToMC(ItemStack itemStack) {
 		Object mcItemStack = newItemStack(
 				InlineOps.method(Opcodes.INVOKESTATIC, ItemInterface.class, "getItemByName").returnType("L{vim:Item};")
-						.param(String.class).arg(itemStack.getItemName()).invokeObject(),
+						.param(String.class).argObject(itemStack.getItemName()).invokeObject(),
 				itemStack.getStackSize(), itemStack.getDamage());
 		setTag(mcItemStack,
 				InlineOps.checkcast(InlineOps.method(Opcodes.INVOKESTATIC, NBTInterface.class, "translateToMC")
-						.returnType("L{vim:NBTBase};").param(NBTBase.class).arg(itemStack.getTagCompound()).invokeObject(),
-				"{vim:NBTCompound}"));
+						.returnType("L{vim:NBTBase};").param(NBTBase.class).argObject(itemStack.getTagCompound())
+						.invokeObject(), "{vim:NBTCompound}"));
 		return mcItemStack;
 	}
 

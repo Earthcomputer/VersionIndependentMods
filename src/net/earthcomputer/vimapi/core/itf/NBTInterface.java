@@ -8,8 +8,6 @@ import org.objectweb.asm.Opcodes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.earthcomputer.vimapi.core.Bytecode;
-import net.earthcomputer.vimapi.core.BytecodeMethod;
 import net.earthcomputer.vimapi.core.ChangeType;
 import net.earthcomputer.vimapi.core.ContainsInlineBytecode;
 import net.earthcomputer.vimapi.core.InlineOps;
@@ -28,217 +26,295 @@ import net.earthcomputer.vimapi.nbt.NBTString;
 
 public class NBTInterface {
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static byte getNBTType(@ChangeType("L{vim:NBTBase};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.method(Opcodes.INVOKEVIRTUAL, "{vim:NBTBase}", "{vim:NBTBase.getType}", "()B", false);
-		Bytecode.insn(Opcodes.IRETURN);
-		return 0;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.method(Opcodes.INVOKEVIRTUAL, "{vim:NBTBase}",
+		// "{vim:NBTBase.getType}", "()B", false);
+		// Bytecode.insn(Opcodes.IRETURN);
+		return InlineOps.method(Opcodes.INVOKEVIRTUAL, "{vim:NBTBase}", "{vim:NBTBase.getType}").argObject(nbt)
+				.invokeByte();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	@ChangeType("L{vim:NBTBase};")
 	private static Object createNewNBTByType(byte type) {
-		Bytecode.var(Opcodes.ILOAD, 0);
-		Bytecode.insn(Opcodes.I2B);
-		Bytecode.method(Opcodes.INVOKESTATIC, "{vim:NBTBase}", "{vim:NBTBase.createNewByType}", "(B)L{vim:NBTBase};", false);
-		Bytecode.insn(Opcodes.ARETURN);
-		return null;
+		// Bytecode.var(Opcodes.ILOAD, 0);
+		// Bytecode.insn(Opcodes.I2B);
+		// Bytecode.method(Opcodes.INVOKESTATIC, "{vim:NBTBase}",
+		// "{vim:NBTBase.createNewByType}", "(B)L{vim:NBTBase};",
+		// false);
+		// Bytecode.insn(Opcodes.ARETURN);
+		return InlineOps.method(Opcodes.INVOKESTATIC, "{vim:NBTBase}", "{vim:NBTBase.createNewByType}")
+				.returnType("L{vim:NBTBase};").param(byte.class).argByte(type).invokeObject();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static byte[] getNBTByteArrayData(@ChangeType("L{vim:NBTByteArray};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:NBTByteArray}", "{vim:NBTByteArray.data}", "[B");
-		Bytecode.insn(Opcodes.ARETURN);
-		return null;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:NBTByteArray}",
+		// "{vim:NBTByteArray.data}", "[B");
+		// Bytecode.insn(Opcodes.ARETURN);
+		return (byte[]) InlineOps.field(Opcodes.GETFIELD, "{vim:NBTByteArray}", "{vim:NBTByteArray.data}")
+				.type(byte[].class).instance(nbt).getObject();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setNBTByteArrayData(@ChangeType("L{vim:NBTByteArray};") Object nbt, byte[] newData) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.ALOAD, 1);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTByteArray}", "{vim:NBTByteArray.data}", "[B");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.ALOAD, 1);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTByteArray}",
+		// "{vim:NBTByteArray.data}", "[B");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:NBTByteArray}", "{vim:NBTByteArray.data}").type(byte[].class)
+				.instance(nbt).setObject(newData);
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static byte getNBTByteData(@ChangeType("L{vim:NBTByte};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:NBTByte}", "{vim:NBTByte.data}", "B");
-		Bytecode.insn(Opcodes.IRETURN);
-		return 0;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:NBTByte}",
+		// "{vim:NBTByte.data}", "B");
+		// Bytecode.insn(Opcodes.IRETURN);
+		return InlineOps.field(Opcodes.GETFIELD, "{vim:NBTByte}", "{vim:NBTByte.data}").instance(nbt).getByte();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setNBTByteData(@ChangeType("L{vim:NBTByte};") Object nbt, byte newData) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.ILOAD, 1);
-		Bytecode.insn(Opcodes.I2B);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTByte}", "{vim:NBTByte.data}", "B");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.ILOAD, 1);
+		// Bytecode.insn(Opcodes.I2B);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTByte}",
+		// "{vim:NBTByte.data}", "B");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:NBTByte}", "{vim:NBTByte.data}").instance(nbt).setByte(newData);
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static short getNBTShortData(@ChangeType("L{vim:NBTShort};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:NBTShort}", "{vim:NBTShort.data}", "S");
-		Bytecode.insn(Opcodes.IRETURN);
-		return 0;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:NBTShort}",
+		// "{vim:NBTShort.data}", "S");
+		// Bytecode.insn(Opcodes.IRETURN);
+		return InlineOps.field(Opcodes.GETFIELD, "{vim:NBTShort}", "{vim:NBTShort.data}").instance(nbt).getShort();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setNBTShortData(@ChangeType("L{vim:NBTShort};") Object nbt, short newData) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.ILOAD, 1);
-		Bytecode.insn(Opcodes.I2S);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTShort}", "{vim:NBTShort.data}", "S");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.ILOAD, 1);
+		// Bytecode.insn(Opcodes.I2S);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTShort}",
+		// "{vim:NBTShort.data}", "S");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:NBTShort}", "{vim:NBTShort.data}").instance(nbt).setShort(newData);
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static int getNBTIntData(@ChangeType("L{vim:NBTInt};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:NBTInt}", "{vim:NBTInt.data}", "I");
-		Bytecode.insn(Opcodes.IRETURN);
-		return 0;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:NBTInt}", "{vim:NBTInt.data}",
+		// "I");
+		// Bytecode.insn(Opcodes.IRETURN);
+		return InlineOps.field(Opcodes.GETFIELD, "{vim:NBTInt}", "{vim:NBTInt.data}").instance(nbt).getInt();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setNBTIntData(@ChangeType("L{vim:NBTInt};") Object nbt, int newData) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.ILOAD, 1);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTInt}", "{vim:NBTInt.data}", "I");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.ILOAD, 1);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTInt}", "{vim:NBTInt.data}",
+		// "I");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:NBTInt}", "{vim:NBTInt.data}").instance(nbt).setInt(newData);
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static long getNBTLongData(@ChangeType("L{vim:NBTLong};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:NBTLong}", "{vim:NBTLong.data}", "J");
-		Bytecode.insn(Opcodes.LRETURN);
-		return 0;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:NBTLong}",
+		// "{vim:NBTLong.data}", "J");
+		// Bytecode.insn(Opcodes.LRETURN);
+		return InlineOps.field(Opcodes.GETFIELD, "{vim:NBTLong}", "{vim:NBTLong.data}").instance(nbt).getLong();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setNBTLongData(@ChangeType("L{vim:NBTLong};") Object nbt, long newData) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.LLOAD, 1);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTLong}", "{vim:NBTLong.data}", "J");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.LLOAD, 1);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTLong}",
+		// "{vim:NBTLong.data}", "J");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:NBTLong}", "{vim:NBTLong.data}").instance(nbt).setLong(newData);
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static float getNBTFloatData(@ChangeType("L{vim:NBTFloat};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:NBTFloat}", "{vim:NBTFloat.data}", "F");
-		Bytecode.insn(Opcodes.FRETURN);
-		return 0;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:NBTFloat}",
+		// "{vim:NBTFloat.data}", "F");
+		// Bytecode.insn(Opcodes.FRETURN);
+		return InlineOps.field(Opcodes.GETFIELD, "{vim:NBTFloat}", "{vim:NBTFloat.data}").instance(nbt).getFloat();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setNBTFloatData(@ChangeType("L{vim:NBTFloat};") Object nbt, float newData) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.FLOAD, 1);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTFloat}", "{vim:NBTFloat.data}", "F");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.FLOAD, 1);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTFloat}",
+		// "{vim:NBTFloat.data}", "F");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:NBTFloat}", "{vim:NBTFloat.data}").instance(nbt).setFloat(newData);
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static double getNBTDoubleData(@ChangeType("L{vim:NBTDouble};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:NBTDouble}", "{vim:NBTDouble.data}", "D");
-		Bytecode.insn(Opcodes.DRETURN);
-		return 0;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:NBTDouble}",
+		// "{vim:NBTDouble.data}", "D");
+		// Bytecode.insn(Opcodes.DRETURN);
+		return InlineOps.field(Opcodes.GETFIELD, "{vim:NBTDouble}", "{vim:NBTDouble.data}").instance(nbt).getDouble();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setNBTDoubleData(@ChangeType("L{vim:NBTDouble};") Object nbt, double newData) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.DLOAD, 1);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTDouble}", "{vim:NBTDouble.data}", "D");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.DLOAD, 1);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTDouble}",
+		// "{vim:NBTDouble.data}", "D");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:NBTDouble}", "{vim:NBTDouble.data}").instance(nbt).setDouble(newData);
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static List<?> getNBTListData(@ChangeType("L{vim:NBTList};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:NBTList}", "{vim:NBTList.data}", "Ljava/util/List;");
-		Bytecode.insn(Opcodes.ARETURN);
-		return null;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:NBTList}",
+		// "{vim:NBTList.data}", "Ljava/util/List;");
+		// Bytecode.insn(Opcodes.ARETURN);
+		return (List<?>) InlineOps.field(Opcodes.GETFIELD, "{vim:NBTList}", "{vim:NBTList.data}").type(List.class)
+				.instance(nbt).getObject();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setNBTListData(@ChangeType("L{vim:NBTList};") Object nbt, List<?> newData) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.ALOAD, 1);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTList}", "{vim:NBTList.data}", "Ljava/util/List;");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.ALOAD, 1);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTList}",
+		// "{vim:NBTList.data}", "Ljava/util/List;");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:NBTList}", "{vim:NBTList.data}").type(List.class).instance(nbt)
+				.setObject(newData);
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static byte getNBTListType(@ChangeType("L{vim:NBTList};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:NBTList}", "{vim:NBTList.tagType}", "B");
-		Bytecode.insn(Opcodes.IRETURN);
-		return 0;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:NBTList}",
+		// "{vim:NBTList.tagType}", "B");
+		// Bytecode.insn(Opcodes.IRETURN);
+		return InlineOps.field(Opcodes.GETFIELD, "{vim:NBTList}", "{vim:NBTList.tagType}").instance(nbt).getByte();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setNBTListType(@ChangeType("L{vim:NBTList};") Object nbt, byte newType) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.ILOAD, 1);
-		Bytecode.insn(Opcodes.I2B);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTList}", "{vim:NBTList.tagType}", "B");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.ILOAD, 1);
+		// Bytecode.insn(Opcodes.I2B);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTList}",
+		// "{vim:NBTList.tagType}", "B");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:NBTList}", "{vim:NBTList.tagType}").instance(nbt).setByte(newType);
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
+	@SuppressWarnings("unchecked")
 	private static Map<String, ?> getNBTCompoundData(@ChangeType("L{vim:NBTCompound};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:NBTCompound}", "{vim:NBTCompound.data}", "Ljava/util/Map;");
-		Bytecode.insn(Opcodes.ARETURN);
-		return null;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:NBTCompound}",
+		// "{vim:NBTCompound.data}", "Ljava/util/Map;");
+		// Bytecode.insn(Opcodes.ARETURN);
+		return (Map<String, ?>) InlineOps.field(Opcodes.GETFIELD, "{vim:NBTCompound}", "{vim:NBTCompound.data}")
+				.type(Map.class).instance(nbt).getObject();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setNBTCompoundData(@ChangeType("L{vim:NBTCompound};") Object nbt, Map<String, ?> newData) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.ALOAD, 1);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTCompound}", "{vim:NBTCompound.data}", "Ljava/util/Map;");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.ALOAD, 1);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTCompound}",
+		// "{vim:NBTCompound.data}", "Ljava/util/Map;");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:NBTCompound}", "{vim:NBTCompound.data}").type(Map.class).instance(nbt)
+				.setObject(newData);
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static int[] getNBTIntArrayData(@ChangeType("L{vim:NBTIntArray};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:NBTIntArray}", "{vim:NBTIntArray.data}", "[I");
-		Bytecode.insn(Opcodes.ARETURN);
-		return null;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:NBTIntArray}",
+		// "{vim:NBTIntArray.data}", "[I");
+		// Bytecode.insn(Opcodes.ARETURN);
+		return (int[]) InlineOps.field(Opcodes.GETFIELD, "{vim:NBTIntArray}", "{vim:NBTIntArray.data}")
+				.type(int[].class).instance(nbt).getObject();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setNBTIntArrayData(@ChangeType("L{vim:NBTIntArray};") Object nbt, int[] newData) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.ALOAD, 1);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTIntArray}", "{vim:NBTIntArray.data}", "[I");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.ALOAD, 1);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTIntArray}",
+		// "{vim:NBTIntArray.data}", "[I");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:NBTIntArray}", "{vim:NBTIntArray.data}").type(int[].class).instance(nbt)
+				.setObject(newData);
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static String getNBTStringData(@ChangeType("L{vim:NBTString};") Object nbt) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.field(Opcodes.GETFIELD, "{vim:NBTString}", "{vim:NBTString.data}", "Ljava/lang/String;");
-		Bytecode.insn(Opcodes.ARETURN);
-		return null;
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.field(Opcodes.GETFIELD, "{vim:NBTString}",
+		// "{vim:NBTString.data}", "Ljava/lang/String;");
+		// Bytecode.insn(Opcodes.ARETURN);
+		return (String) InlineOps.field(Opcodes.GETFIELD, "{vim:NBTString}", "{vim:NBTString.data}").type(String.class)
+				.instance(nbt).getObject();
 	}
 
-	@BytecodeMethod
+	// @BytecodeMethod
+	@ContainsInlineBytecode
 	private static void setNBTStringData(@ChangeType("L{vim:NBTString};") Object nbt, String newData) {
-		Bytecode.var(Opcodes.ALOAD, 0);
-		Bytecode.var(Opcodes.ALOAD, 1);
-		Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTString}", "{vim:NBTString.data}", "Ljava/lang/String;");
-		Bytecode.insn(Opcodes.RETURN);
+		// Bytecode.var(Opcodes.ALOAD, 0);
+		// Bytecode.var(Opcodes.ALOAD, 1);
+		// Bytecode.field(Opcodes.PUTFIELD, "{vim:NBTString}",
+		// "{vim:NBTString.data}", "Ljava/lang/String;");
+		// Bytecode.insn(Opcodes.RETURN);
+		InlineOps.field(Opcodes.PUTFIELD, "{vim:NBTString}", "{vim:NBTString.data}").type(String.class).instance(nbt)
+				.setObject(newData);
 	}
 
 	@ContainsInlineBytecode
