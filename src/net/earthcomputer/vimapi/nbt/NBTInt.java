@@ -42,5 +42,10 @@ public class NBTInt extends NBTPrimitive {
 	public double getDouble() {
 		return data;
 	}
+
+	@Override
+	public NBTInt copy() {
+		return new NBTInt(data);
+	}
 	
 }

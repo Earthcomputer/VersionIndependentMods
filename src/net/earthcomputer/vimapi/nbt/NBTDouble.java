@@ -43,4 +43,9 @@ public class NBTDouble extends NBTPrimitive {
 		return data;
 	}
 
+	@Override
+	public NBTDouble copy() {
+		return new NBTDouble(data);
+	}
+
 }

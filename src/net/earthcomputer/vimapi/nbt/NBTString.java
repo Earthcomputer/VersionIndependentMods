@@ -20,4 +20,9 @@ public class NBTString extends NBTBase {
 		return TYPE_STRING;
 	}
 
+	@Override
+	public NBTString copy() {
+		return new NBTString(data);
+	}
+
 }

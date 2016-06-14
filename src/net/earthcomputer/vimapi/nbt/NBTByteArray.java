@@ -17,4 +17,9 @@ public class NBTByteArray extends NBTBase {
 		return TYPE_BYTE_ARRAY;
 	}
 
+	@Override
+	public NBTByteArray copy() {
+		return new NBTByteArray(data);
+	}
+
 }

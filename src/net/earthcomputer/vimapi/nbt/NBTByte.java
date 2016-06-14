@@ -43,4 +43,9 @@ public class NBTByte extends NBTPrimitive {
 		return data;
 	}
 
+	@Override
+	public NBTByte copy() {
+		return new NBTByte(data);
+	}
+
 }

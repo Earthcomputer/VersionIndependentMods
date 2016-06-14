@@ -170,4 +170,13 @@ public class NBTCompound extends NBTBase implements Iterable<Map.Entry<String, N
 		return TYPE_COMPOUND;
 	}
 
+	@Override
+	public NBTCompound copy() {
+		NBTCompound copy = new NBTCompound();
+		for (Map.Entry<String, NBTBase> entry : this) {
+			copy.set(entry.getKey(), entry.getValue().copy());
+		}
+		return copy;
+	}
+
 }

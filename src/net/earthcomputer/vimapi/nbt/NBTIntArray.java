@@ -17,4 +17,9 @@ public class NBTIntArray extends NBTBase {
 		return TYPE_INT_ARRAY;
 	}
 
+	@Override
+	public NBTIntArray copy() {
+		return new NBTIntArray(data);
+	}
+
 }

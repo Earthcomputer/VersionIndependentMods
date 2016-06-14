@@ -43,4 +43,9 @@ public class NBTLong extends NBTPrimitive {
 		return data;
 	}
 
+	@Override
+	public NBTLong copy() {
+		return new NBTLong(data);
+	}
+
 }

@@ -109,10 +109,44 @@ public class NBTList extends NBTBase implements Iterable<NBTBase> {
 		return new NBTCompound();
 	}
 
-	// TODO: Lots and lots of setters
-
 	public void set(int ind, NBTBase val) {
 		data.set(ind, val);
+	}
+
+	public void setByteArray(int ind, byte[] val) {
+		set(ind, new NBTByteArray(val));
+	}
+
+	public void setByte(int ind, byte val) {
+		set(ind, new NBTByte(val));
+	}
+
+	public void setShort(int ind, short val) {
+		set(ind, new NBTShort(val));
+	}
+
+	public void setInt(int ind, int val) {
+		set(ind, new NBTInt(val));
+	}
+
+	public void setLong(int ind, long val) {
+		set(ind, new NBTLong(val));
+	}
+
+	public void setFloat(int ind, float val) {
+		set(ind, new NBTFloat(val));
+	}
+
+	public void setDouble(int ind, double val) {
+		set(ind, new NBTDouble(val));
+	}
+
+	public void setIntArray(int ind, int[] val) {
+		set(ind, new NBTIntArray(val));
+	}
+
+	public void setString(int ind, String val) {
+		set(ind, new NBTString(val));
 	}
 
 	public void add(NBTBase val) {
@@ -126,6 +160,42 @@ public class NBTList extends NBTBase implements Iterable<NBTBase> {
 		data.add(val);
 	}
 
+	public void addByteArray(byte[] val) {
+		add(new NBTByteArray(val));
+	}
+
+	public void addByte(byte val) {
+		add(new NBTByte(val));
+	}
+
+	public void addShort(short val) {
+		add(new NBTShort(val));
+	}
+
+	public void addInt(int val) {
+		add(new NBTInt(val));
+	}
+
+	public void addLong(long val) {
+		add(new NBTLong(val));
+	}
+
+	public void addFloat(float val) {
+		add(new NBTFloat(val));
+	}
+
+	public void addDouble(double val) {
+		add(new NBTDouble(val));
+	}
+
+	public void addIntArray(int[] val) {
+		add(new NBTIntArray(val));
+	}
+
+	public void addString(String val) {
+		add(new NBTString(val));
+	}
+
 	public void add(int ind, NBTBase val) {
 		if (size() == 0) {
 			tagType = val.getType();
@@ -135,6 +205,42 @@ public class NBTList extends NBTBase implements Iterable<NBTBase> {
 			}
 		}
 		data.add(ind, val);
+	}
+
+	public void addByteArray(int ind, byte[] val) {
+		add(ind, new NBTByteArray(val));
+	}
+
+	public void addByte(int ind, byte val) {
+		add(ind, new NBTByte(val));
+	}
+
+	public void addShort(int ind, short val) {
+		add(ind, new NBTShort(val));
+	}
+
+	public void addInt(int ind, int val) {
+		add(ind, new NBTInt(val));
+	}
+
+	public void addLong(int ind, long val) {
+		add(ind, new NBTLong(val));
+	}
+
+	public void addFloat(int ind, float val) {
+		add(ind, new NBTFloat(val));
+	}
+
+	public void addDouble(int ind, double val) {
+		add(ind, new NBTDouble(val));
+	}
+
+	public void addIntArray(int ind, int[] val) {
+		add(ind, new NBTIntArray(val));
+	}
+
+	public void addString(int ind, String val) {
+		add(ind, new NBTString(val));
 	}
 
 	public void remove(int ind) {
@@ -157,6 +263,15 @@ public class NBTList extends NBTBase implements Iterable<NBTBase> {
 	@Override
 	public byte getType() {
 		return TYPE_LIST;
+	}
+
+	@Override
+	public NBTList copy() {
+		NBTList copy = new NBTList();
+		for (NBTBase element : this) {
+			copy.add(element.copy());
+		}
+		return copy;
 	}
 
 }

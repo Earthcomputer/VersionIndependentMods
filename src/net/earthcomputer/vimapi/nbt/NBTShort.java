@@ -43,4 +43,9 @@ public class NBTShort extends NBTPrimitive {
 		return data;
 	}
 
+	@Override
+	public NBTShort copy() {
+		return new NBTShort(data);
+	}
+
 }

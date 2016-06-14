@@ -16,4 +16,6 @@ public abstract class NBTBase {
 	
 	public abstract byte getType();
 	
+	public abstract NBTBase copy();
+	
 }

@@ -43,4 +43,9 @@ public class NBTFloat extends NBTPrimitive {
 		return data;
 	}
 
+	@Override
+	public NBTFloat copy() {
+		return new NBTFloat(data);
+	}
+
 }
