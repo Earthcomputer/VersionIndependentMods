@@ -9,7 +9,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public class FinderItem extends Finder {
+public class FinderItem implements IFinder {
 
 	private static final List<String> STRINGS = Arrays.asList("iron_shovel", "feather", "bread", "sign", "milk_bucket",
 			"clock", "cake", "melon_seeds", "blaze_rod", "spawn_egg");

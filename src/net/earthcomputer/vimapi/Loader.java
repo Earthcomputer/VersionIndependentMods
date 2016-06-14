@@ -22,6 +22,9 @@ import com.google.common.collect.Lists;
 
 import net.minecraft.launchwrapper.Launch;
 
+/**
+ * The class responsible for loading mods
+ */
 public class Loader {
 
 	private static final String VIMMOD_DESC = Type.getDescriptor(VimMod.class);

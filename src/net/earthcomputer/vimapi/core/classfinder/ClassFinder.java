@@ -22,19 +22,24 @@ import com.google.common.collect.Sets;
 import net.earthcomputer.vimapi.util.BeforeAfterComparable;
 import net.earthcomputer.vimapi.util.RelativePosition;
 
+/**
+ * A class in charge of finding vanilla classes and recognizing them. If you
+ * want to recognize a vanilla class, use
+ * <code>ClassFinder.registerFinder("your-modid:your-finder-name", your-finder)</code>
+ */
 public class ClassFinder {
 
-	private static final List<BeforeAfterComparable<Finder>> finderList = Lists.newArrayList();
+	private static final List<BeforeAfterComparable<IFinder>> finderList = Lists.newArrayList();
 
 	private ClassFinder() {
 	}
 
-	public static void registerFinder(String name, Finder finder) {
+	public static void registerFinder(String name, IFinder finder) {
 		registerFinder(name, finder, RelativePosition.create());
 	}
 
-	public static void registerFinder(String name, Finder finder, RelativePosition relativePos) {
-		finderList.add(new BeforeAfterComparable<Finder>(name, finder, relativePos));
+	public static void registerFinder(String name, IFinder finder, RelativePosition relativePos) {
+		finderList.add(new BeforeAfterComparable<IFinder>(name, finder, relativePos));
 	}
 
 	public static void searchURLsForClasses(URL[] urls, String mainClass) {
@@ -103,8 +108,8 @@ public class ClassFinder {
 
 		Collections.sort(finderList);
 
-		for (BeforeAfterComparable<Finder> comparableFinder : finderList) {
-			Finder finder = comparableFinder.getValue();
+		for (BeforeAfterComparable<IFinder> comparableFinder : finderList) {
+			IFinder finder = comparableFinder.getValue();
 
 			for (i = 0; i < numClasses; i++) {
 				finder.accept(classNames[i], constants[i], nodes[i]);

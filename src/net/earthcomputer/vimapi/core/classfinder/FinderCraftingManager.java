@@ -8,7 +8,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public class FinderCraftingManager extends Finder {
+public class FinderCraftingManager implements IFinder {
 
 	private static final List<String> STRINGS = Arrays.asList("###", "~~ ", "~O ", "  ~", "XXX");
 

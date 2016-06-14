@@ -8,6 +8,9 @@ import net.earthcomputer.vimapi.core.itf.CraftingManagerInterface;
 import net.earthcomputer.vimapi.core.itf.ItemInterface;
 import net.earthcomputer.vimapi.core.itf.ItemStackInterface;
 
+/**
+ * A general-purpose registry for things
+ */
 public class Registry {
 
 	private static final Registry INSTANCE = new Registry();

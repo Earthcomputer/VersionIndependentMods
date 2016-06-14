@@ -8,6 +8,9 @@ import net.earthcomputer.vimapi.core.ChangeType;
 import net.earthcomputer.vimapi.core.ContainsInlineBytecode;
 import net.earthcomputer.vimapi.core.InlineOps;
 
+/**
+ * This class interfaces with the vanilla Item class
+ */
 public class ItemInterface {
 
 	private ItemInterface() {

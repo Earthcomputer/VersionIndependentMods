@@ -7,7 +7,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 
-public class FinderItemStack extends Finder {
+public class FinderItemStack implements IFinder {
 
 	private static final List<String> STRINGS = Arrays.asList("x", "@", "id", "Count", "Damage", "tag", "ench",
 			"display", "Name", "#%04d/%d%s");

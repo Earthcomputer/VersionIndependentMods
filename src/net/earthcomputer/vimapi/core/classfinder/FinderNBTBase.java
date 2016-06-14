@@ -7,7 +7,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public class FinderNBTBase extends Finder {
+public class FinderNBTBase implements IFinder {
 
 	private static final List<String> STRINGS = Arrays.asList("END", "BYTE", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE",
 			"BYTE[]", "STRING", "LIST", "COMPOUND", "INT[]");

@@ -24,6 +24,9 @@ import net.earthcomputer.vimapi.nbt.NBTLong;
 import net.earthcomputer.vimapi.nbt.NBTShort;
 import net.earthcomputer.vimapi.nbt.NBTString;
 
+/**
+ * This class interfaces with vanilla NBT classes
+ */
 public class NBTInterface {
 
 	@ContainsInlineBytecode

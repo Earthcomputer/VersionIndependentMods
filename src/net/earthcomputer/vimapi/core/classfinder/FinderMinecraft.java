@@ -3,7 +3,7 @@ package net.earthcomputer.vimapi.core.classfinder;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public class FinderMinecraft extends Finder {
+public class FinderMinecraft implements IFinder {
 
 	@Override
 	public void accept(String className, ClassConstants constants, ClassNode node) {

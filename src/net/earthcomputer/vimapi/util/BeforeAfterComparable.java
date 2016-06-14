@@ -2,6 +2,10 @@ package net.earthcomputer.vimapi.util;
 
 import java.util.List;
 
+/**
+ * A {@link Comparable} for use in lists if one wants to make use of
+ * {@link RelativePosition} and {@link java.util.Collections#sort(List)}
+ */
 public class BeforeAfterComparable<T> implements Comparable<BeforeAfterComparable<T>> {
 
 	private String name;

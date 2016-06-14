@@ -7,6 +7,9 @@ import net.earthcomputer.vimapi.VIM;
 import net.minecraft.launchwrapper.ITweaker;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 
+/**
+ * The tweak class for the standalone version of VIM
+ */
 public abstract class AbstractVIMTweaker implements ITweaker {
 
 	protected List<String> args;

@@ -14,6 +14,9 @@ import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * The FML loading plugin for use with FML
+ */
 public class VIMTweakerFML implements IFMLLoadingPlugin {
 
 	public VIMTweakerFML() {

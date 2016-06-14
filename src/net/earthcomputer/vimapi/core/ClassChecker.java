@@ -5,6 +5,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.CheckClassAdapter;
 
+/**
+ * This is a utility class used to check whether generated classes are valid and
+ * report the field/method name and descriptor and possibly line number of the
+ * error.
+ */
 public class ClassChecker extends DetailClassVisitor {
 
 	public ClassChecker() {

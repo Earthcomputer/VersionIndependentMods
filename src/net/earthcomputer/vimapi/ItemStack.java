@@ -2,6 +2,9 @@ package net.earthcomputer.vimapi;
 
 import net.earthcomputer.vimapi.nbt.NBTCompound;
 
+/**
+ * Represents the vanilla ItemStack class
+ */
 public class ItemStack {
 
 	private String itemName;

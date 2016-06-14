@@ -4,7 +4,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public class FinderDedicatedServer extends Finder {
+public class FinderDedicatedServer implements IFinder {
 
 	@Override
 	public void accept(String className, ClassConstants constants, ClassNode node) {

@@ -6,6 +6,9 @@ import java.util.List;
 import net.earthcomputer.vimapi.EnumSide;
 import net.earthcomputer.vimapi.VIM;
 
+/**
+ * The tweak class used for servers without FML
+ */
 public class VIMTweakerServer extends AbstractVIMTweaker {
 
 	@Override

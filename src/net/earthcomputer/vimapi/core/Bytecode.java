@@ -1,5 +1,13 @@
 package net.earthcomputer.vimapi.core;
 
+/**
+ * This class is used in methods annotated with the {@link BytecodeMethod}
+ * annotation. {@link InlineOps} should be used in preference to this class.
+ * Internal names, member names and descriptors may be in the obfuscation format
+ * (see
+ * {@link net.earthcomputer.vimapi.core.tweaker.BytecodeTransformer#obfuscate(String)
+ * BytecodeTransformer.obfuscate(String)} for details)
+ */
 public class Bytecode {
 
 	private Bytecode() {

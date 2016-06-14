@@ -10,6 +10,9 @@ import org.objectweb.asm.tree.MethodNode;
 import net.earthcomputer.vimapi.core.classfinder.UsefulNames;
 import net.minecraft.launchwrapper.IClassTransformer;
 
+/**
+ * This transformer is in charge of injecting into vanilla code
+ */
 public class InjectingTransformer implements IClassTransformer {
 
 	@Override

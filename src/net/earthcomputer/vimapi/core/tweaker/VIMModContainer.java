@@ -6,6 +6,9 @@ import net.earthcomputer.vimapi.VIM;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.ModMetadata;
 
+/**
+ * The FML mod container for VIM
+ */
 public class VIMModContainer extends DummyModContainer {
 
 	public VIMModContainer() {

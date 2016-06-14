@@ -44,6 +44,15 @@ import net.earthcomputer.vimapi.core.InlineOps;
 import net.earthcomputer.vimapi.core.classfinder.UsefulNames;
 import net.minecraft.launchwrapper.IClassTransformer;
 
+/**
+ * This transformer translates code containing {@link Bytecode},
+ * {@link InlineOps} and {@link ChangeType}.<br/>
+ * <br/>
+ * The main reason these things exist is so that VIM can directly reference
+ * obfuscated vanilla code without the performance penalty of using reflection.
+ * Coupled with the obfuscation format (see {@link #obfuscate(String)}), this
+ * makes for a very powerful technique.
+ */
 public class BytecodeTransformer implements IClassTransformer {
 
 	private static final String BYTECODE_TRANSFORMED_ANNOTATION_DESC = Type.getDescriptor(BytecodeMethod.class);
@@ -68,65 +77,82 @@ public class BytecodeTransformer implements IClassTransformer {
 
 		boolean classChanged = false;
 
-		Map<Pair<String, String>, String> methodDescChanges = Maps.newHashMap();
+		// Changes in method descriptors
+		Map<Pair<String, String>, String> methodTypeChanges = Maps.newHashMap();
 
 		for (MethodNode method : node.methods) {
-			boolean bytecodeTransformed = false;
+			// Does this method have the @BytecodeMethod annotation?
+			boolean isBytecodeMethod = false;
+			// Does this method have the @ContainsInlineBytecode annotation?
+			boolean containsInlineBytecode = false;
+
 			Type methodDesc = Type.getMethodType(method.desc);
 			Type[] paramTypes = methodDesc.getArgumentTypes();
 			Type returnType = methodDesc.getReturnType();
-			boolean methodDescChanged = false;
-			boolean containsInlineBytecode = false;
+			// Whether we've found the @ChangeType annotation either on the
+			// method or on its parameters
+			boolean hasChangedType = false;
+
+			// Look through the method's annotations
 			if (method.visibleAnnotations != null) {
 				for (AnnotationNode annotation : method.visibleAnnotations) {
 					if (annotation.desc.equals(BYTECODE_TRANSFORMED_ANNOTATION_DESC)) {
-						bytecodeTransformed = true;
+						// found @BytecodeTransformed
+						isBytecodeMethod = true;
 						classChanged = true;
-					} else if (annotation.desc.equals(CHANGE_TYPE_ANNOTATION_DESC)) {
-						classChanged = true;
-						methodDescChanged = true;
-						returnType = Type.getType(obfuscate((String) annotation.values.get(1)));
 					} else if (annotation.desc.equals(CONTAINS_INLINE_BYTECODE_DESC)) {
+						// found @ContainsInlineBytecode
 						classChanged = true;
 						containsInlineBytecode = true;
+					} else if (annotation.desc.equals(CHANGE_TYPE_ANNOTATION_DESC)) {
+						// found @ChangeType, change return type of method
+						classChanged = true;
+						hasChangedType = true;
+						returnType = Type.getType(obfuscate((String) annotation.values.get(1)));
 					}
 				}
 			}
+
+			// The through the method's parameters' annotations
 			if (method.visibleParameterAnnotations != null) {
 				for (int i = 0; i < method.visibleParameterAnnotations.length; i++) {
 					if (method.visibleParameterAnnotations[i] != null) {
 						for (AnnotationNode annotation : method.visibleParameterAnnotations[i]) {
 							if (annotation.desc.equals(CHANGE_TYPE_ANNOTATION_DESC)) {
+								// found @ChangeType, change type of parameter
 								classChanged = true;
-								methodDescChanged = true;
+								hasChangedType = true;
 								paramTypes[i] = Type.getType(obfuscate((String) annotation.values.get(1)));
 							}
 						}
 					}
 				}
 			}
-			if (methodDescChanged) {
+
+			if (hasChangedType) {
 				if ((method.access & Opcodes.ACC_PRIVATE) == 0) {
 					throw new RuntimeException("Cannot have a @ChangeType annotation on a non-private method");
 				}
 				String newDesc = Type.getMethodDescriptor(returnType, paramTypes);
-				methodDescChanges.put(Pair.of(method.name, method.desc), newDesc);
+				methodTypeChanges.put(Pair.of(method.name, method.desc), newDesc);
 				method.desc = newDesc;
 			}
-			if (bytecodeTransformed && containsInlineBytecode) {
+			if (isBytecodeMethod && containsInlineBytecode) {
 				throw new RuntimeException(
 						"Cannot have both the @BytecodeMethod and the @ContainsInlineBytecode annotations on the same method");
 			}
-			if (bytecodeTransformed) {
-				bytecodeTransform(method);
-			}
-			if (containsInlineBytecode) {
+			if (isBytecodeMethod) {
+				handleBytecodeMethod(method);
+			} else if (containsInlineBytecode) {
 				handleInlineBytecode(method);
 			}
 		}
 
 		if (classChanged) {
-			for (Map.Entry<Pair<String, String>, String> methodDescChange : methodDescChanges.entrySet()) {
+			// For each direct reference of a method with a @ChangeType
+			// annotation, we have to update the reference so that it matches
+			// the new method descriptor
+			for (Map.Entry<Pair<String, String>, String> methodTypeChange : methodTypeChanges.entrySet()) {
 				for (MethodNode method : node.methods) {
 					if (method.instructions != null && method.instructions.size() != 0) {
 						AbstractInsnNode insn = method.instructions.getFirst();
@@ -134,8 +160,8 @@ public class BytecodeTransformer implements IClassTransformer {
 							if (insn.getType() == AbstractInsnNode.METHOD_INSN) {
 								MethodInsnNode methodInsn = (MethodInsnNode) insn;
 								if (methodInsn.owner.equals(node.name) && Pair.of(methodInsn.name, methodInsn.desc)
-										.equals(methodDescChange.getKey())) {
-									methodInsn.desc = methodDescChange.getValue();
+										.equals(methodTypeChange.getKey())) {
+									methodInsn.desc = methodTypeChange.getValue();
 								}
 							}
 							insn = insn.getNext();
@@ -144,6 +170,8 @@ public class BytecodeTransformer implements IClassTransformer {
 				}
 			}
 
+			// Check that the altered class is valid, then convert it to
+			// bytecode
 			try {
 				ClassChecker classChecker = new ClassChecker();
 				node.accept(classChecker);
@@ -161,16 +189,21 @@ public class BytecodeTransformer implements IClassTransformer {
 				}
 				throw e;
 			}
-		} else {
+		} else { // if (!classChanged)
 			return bytes;
 		}
 	}
 
-	private static void bytecodeTransform(MethodNode method) {
+	/**
+	 * Handle a method with a @BytecodeMethod annotation
+	 */
+	private static void handleBytecodeMethod(MethodNode method) {
 		int lineNumber = -1;
 		InsnList newInsns = new InsnList();
 		AbstractInsnNode insn = method.instructions.getFirst();
+		// The keys of this map may either be a LabelNode or a String
 		Map<Object, LabelNode> labels = Maps.newHashMap();
+
 		while (insn != null) {
 			if (insn instanceof LineNumberNode) {
 				LineNumberNode lineNode = (LineNumberNode) insn;
@@ -207,42 +240,42 @@ public class BytecodeTransformer implements IClassTransformer {
 
 	private static AbstractInsnNode getBytecodeInsn(MethodInsnNode bytecodeInsn, Map<Object, LabelNode> labels) {
 		String type = bytecodeInsn.name;
-		AbstractInsnNode insn = lastRealInsn(bytecodeInsn);
+		AbstractInsnNode argInsn = lastRealInsn(bytecodeInsn);
 		if (type.equals("insn")) {
-			return new InsnNode(getIntFromInsn(insn));
+			return new InsnNode(getIntFromInsn(argInsn));
 		} else if (type.equals("field")) {
 			int opcode;
 			String owner;
 			String field;
 			String desc;
-			desc = getStringFromInsn(insn);
-			insn = lastRealInsn(insn);
-			field = getStringFromInsn(insn);
-			insn = lastRealInsn(insn);
-			owner = getStringFromInsn(insn);
-			insn = lastRealInsn(insn);
-			opcode = getIntFromInsn(insn);
+			desc = getStringFromInsn(argInsn);
+			argInsn = lastRealInsn(argInsn);
+			field = getStringFromInsn(argInsn);
+			argInsn = lastRealInsn(argInsn);
+			owner = getStringFromInsn(argInsn);
+			argInsn = lastRealInsn(argInsn);
+			opcode = getIntFromInsn(argInsn);
 			return new FieldInsnNode(opcode, obfuscate(owner), obfuscate(field), obfuscate(desc));
 		} else if (type.equals("iinc")) {
 			int var;
 			int amt;
-			amt = getIntFromInsn(insn);
-			insn = lastRealInsn(insn);
-			var = getIntFromInsn(insn);
+			amt = getIntFromInsn(argInsn);
+			argInsn = lastRealInsn(argInsn);
+			var = getIntFromInsn(argInsn);
 			return new IincInsnNode(var, amt);
 		} else if (type.equals("intInsn")) {
 			int opcode;
 			int operand;
-			operand = getIntFromInsn(insn);
-			insn = lastRealInsn(insn);
-			opcode = getIntFromInsn(insn);
+			operand = getIntFromInsn(argInsn);
+			argInsn = lastRealInsn(argInsn);
+			opcode = getIntFromInsn(argInsn);
 			return new IntInsnNode(opcode, operand);
 		} else if (type.equals("jump")) {
 			int opcode;
 			String labelName;
-			labelName = getStringFromInsn(insn);
-			insn = lastRealInsn(insn);
-			opcode = getIntFromInsn(insn);
+			labelName = getStringFromInsn(argInsn);
+			argInsn = lastRealInsn(argInsn);
+			opcode = getIntFromInsn(argInsn);
 			LabelNode label = labels.get(labelName);
 			if (label == null) {
 				label = new LabelNode();
@@ -250,7 +283,7 @@ public class BytecodeTransformer implements IClassTransformer {
 			}
 			return new JumpInsnNode(opcode, label);
 		} else if (type.equals("label")) {
-			String labelName = getStringFromInsn(insn);
+			String labelName = getStringFromInsn(argInsn);
 			LabelNode label = labels.get(labelName);
 			if (label == null) {
 				label = new LabelNode();
@@ -259,60 +292,66 @@ public class BytecodeTransformer implements IClassTransformer {
 			return label;
 		} else if (type.equals("ldc")) {
 			// TODO: support for obfuscated names?
-			return new LdcInsnNode(((LdcInsnNode) insn).cst);
+			return new LdcInsnNode(((LdcInsnNode) argInsn).cst);
 		} else if (type.equals("method")) {
 			int opcode;
 			String owner;
 			String method;
 			String desc;
 			boolean itf;
-			itf = getIntFromInsn(insn) != 0;
-			insn = lastRealInsn(insn);
-			desc = getStringFromInsn(insn);
-			insn = lastRealInsn(insn);
-			method = getStringFromInsn(insn);
-			insn = lastRealInsn(insn);
-			owner = getStringFromInsn(insn);
-			insn = lastRealInsn(insn);
-			opcode = getIntFromInsn(insn);
+			itf = getIntFromInsn(argInsn) != 0;
+			argInsn = lastRealInsn(argInsn);
+			desc = getStringFromInsn(argInsn);
+			argInsn = lastRealInsn(argInsn);
+			method = getStringFromInsn(argInsn);
+			argInsn = lastRealInsn(argInsn);
+			owner = getStringFromInsn(argInsn);
+			argInsn = lastRealInsn(argInsn);
+			opcode = getIntFromInsn(argInsn);
 			return new MethodInsnNode(opcode, obfuscate(owner), obfuscate(method), obfuscate(desc), itf);
 		} else if (type.equals("multianewarray")) {
 			String desc;
 			int dims;
-			dims = getIntFromInsn(insn);
-			insn = lastRealInsn(insn);
-			desc = getStringFromInsn(insn);
+			dims = getIntFromInsn(argInsn);
+			argInsn = lastRealInsn(argInsn);
+			desc = getStringFromInsn(argInsn);
 			return new MultiANewArrayInsnNode(obfuscate(desc), dims);
 		} else if (type.equals("type")) {
 			int opcode;
 			String cst;
-			cst = getStringFromInsn(insn);
-			insn = lastRealInsn(insn);
-			opcode = getIntFromInsn(insn);
+			cst = getStringFromInsn(argInsn);
+			argInsn = lastRealInsn(argInsn);
+			opcode = getIntFromInsn(argInsn);
 			return new TypeInsnNode(opcode, obfuscate(cst));
 		} else if (type.equals("var")) {
 			int opcode;
 			int var;
-			var = getIntFromInsn(insn);
-			insn = lastRealInsn(insn);
-			opcode = getIntFromInsn(insn);
+			var = getIntFromInsn(argInsn);
+			argInsn = lastRealInsn(argInsn);
+			opcode = getIntFromInsn(argInsn);
 			return new VarInsnNode(opcode, var);
 		} else {
 			throw new RuntimeException("Unknown bytecode type " + type);
 		}
 	}
 
+	/**
+	 * Handle a method with the @ContainsInlineBytecode annotation
+	 */
 	private static void handleInlineBytecode(MethodNode method) {
 		AbstractInsnNode insn = method.instructions.getFirst();
 		while (insn != null) {
 			AbstractInsnNode nextInsn = insn.getNext();
+
 			if (insn.getOpcode() == Opcodes.INVOKESTATIC) {
 				MethodInsnNode methodInsn = (MethodInsnNode) insn;
 				if (methodInsn.owner.equals(INLINE_OPS_NAME)) {
+
 					AbstractInsnNode argInsn = lastRealInsn(insn);
 					String op = methodInsn.name;
+
 					if (op.equals("checkcast")) {
-						String cst = getStringFromInsn(argInsn);
+						String cst = getInternalNameFromInsn(argInsn);
 						method.instructions.insert(insn, new TypeInsnNode(Opcodes.CHECKCAST, obfuscate(cst)));
 					} else if (op.equals("method")) {
 						String methodName = getStringFromInsn(argInsn);
@@ -333,9 +372,13 @@ public class BytecodeTransformer implements IClassTransformer {
 						int opcode = getIntFromInsn(argInsn);
 						handleFieldOp(method.instructions, insn, opcode, owner, fieldName);
 					}
+
 					// Repeat this, as the next instruction may have been
 					// removed or changed
 					nextInsn = insn.getNext();
+
+					// Remove the InlineOps static call and all the argument
+					// instructions
 					AbstractInsnNode insnToRemove = argInsn, nextInsnToRemove;
 					do {
 						nextInsnToRemove = insnToRemove.getNext();
@@ -344,6 +387,7 @@ public class BytecodeTransformer implements IClassTransformer {
 					} while (insnToRemove != nextInsn);
 				}
 			}
+
 			insn = nextInsn;
 		}
 	}
@@ -357,6 +401,7 @@ public class BytecodeTransformer implements IClassTransformer {
 		AbstractInsnNode currentInsn = methodInsn.getNext(), nextInsn, argInsn;
 		while (currentInsn != null) {
 			nextInsn = currentInsn.getNext();
+
 			if (currentInsn.getType() == AbstractInsnNode.METHOD_INSN) {
 				MethodInsnNode currentMethodInsn = (MethodInsnNode) currentInsn;
 				if (currentInsn.getOpcode() == Opcodes.INVOKESTATIC) {
@@ -388,37 +433,14 @@ public class BytecodeTransformer implements IClassTransformer {
 									paramTypes[i] = Type.getType(parameters.get(i));
 								}
 								String invokeType = currentMethodInsn.name.substring(6);
-								Type returnType;
-								if (invokeType.equals("Boolean")) {
-									returnType = Type.BOOLEAN_TYPE;
-								} else if (invokeType.equals("Byte")) {
-									returnType = Type.BYTE_TYPE;
-								} else if (invokeType.equals("Char")) {
-									returnType = Type.CHAR_TYPE;
-								} else if (invokeType.equals("Double")) {
-									returnType = Type.DOUBLE_TYPE;
-								} else if (invokeType.equals("Float")) {
-									returnType = Type.FLOAT_TYPE;
-								} else if (invokeType.equals("Int")) {
-									returnType = Type.INT_TYPE;
-								} else if (invokeType.equals("Long")) {
-									returnType = Type.LONG_TYPE;
-								} else if (invokeType.equals("Short")) {
-									returnType = Type.SHORT_TYPE;
-								} else if (invokeType.equals("Void")) {
-									returnType = Type.VOID_TYPE;
-								} else {
-									returnType = Type.getType(returnTypeName);
-								}
+								Type returnType = getTypeFromSuffix(invokeType, returnTypeName);
 								boolean itfMethod = opcode == Opcodes.INVOKEINTERFACE;
 								String methodDesc = Type.getMethodDescriptor(returnType, paramTypes);
-								instructions
-										.insert(currentInsn,
-												new MethodInsnNode(opcode, owner,
-														itfMethod ? methodName
-																: "access$method_" + AccessTransformer
-																		.getMemberId(owner, methodName, methodDesc),
-														methodDesc, itfMethod));
+								String transformedMethodName = itfMethod ? methodName
+										: "access$method_"
+												+ AccessTransformer.getMemberId(owner, methodName, methodDesc);
+								instructions.insert(currentInsn, new MethodInsnNode(opcode, owner,
+										transformedMethodName, methodDesc, itfMethod));
 								instructions.remove(currentInsn);
 								return;
 							}
@@ -439,6 +461,7 @@ public class BytecodeTransformer implements IClassTransformer {
 		AbstractInsnNode currentInsn = methodInsn.getNext(), nextInsn, argInsn;
 		while (currentInsn != null) {
 			nextInsn = currentInsn.getNext();
+
 			if (currentInsn.getType() == AbstractInsnNode.METHOD_INSN) {
 				MethodInsnNode currentMethodInsn = (MethodInsnNode) currentInsn;
 				if (currentInsn.getOpcode() == Opcodes.INVOKESTATIC) {
@@ -461,68 +484,26 @@ public class BytecodeTransformer implements IClassTransformer {
 								instructions.remove(currentInsn);
 							} else if (currentMethodInsn.name.startsWith("get")) {
 								String getType = currentMethodInsn.name.substring(3);
-								Type fieldType;
-								if (getType.equals("Boolean")) {
-									fieldType = Type.BOOLEAN_TYPE;
-								} else if (getType.equals("Byte")) {
-									fieldType = Type.BYTE_TYPE;
-								} else if (getType.equals("Char")) {
-									fieldType = Type.CHAR_TYPE;
-								} else if (getType.equals("Double")) {
-									fieldType = Type.DOUBLE_TYPE;
-								} else if (getType.equals("Float")) {
-									fieldType = Type.FLOAT_TYPE;
-								} else if (getType.equals("Int")) {
-									fieldType = Type.INT_TYPE;
-								} else if (getType.equals("Long")) {
-									fieldType = Type.LONG_TYPE;
-								} else if (getType.equals("Short")) {
-									fieldType = Type.SHORT_TYPE;
-								} else {
-									fieldType = Type.getType(typeName);
-								}
+								Type fieldType = getTypeFromSuffix(getType, typeName);
+								int methodOpcode = opcode == Opcodes.GETSTATIC ? Opcodes.INVOKESTATIC
+										: Opcodes.INVOKEVIRTUAL;
 								String fieldDesc = fieldType.getDescriptor();
+								String methodName = "access$getfield_"
+										+ AccessTransformer.getMemberId(owner, fieldName, fieldDesc);
 								instructions.insert(currentInsn,
-										new MethodInsnNode(
-												opcode == Opcodes.GETSTATIC ? Opcodes.INVOKESTATIC
-														: Opcodes.INVOKEVIRTUAL,
-												owner,
-												"access$getfield_"
-														+ AccessTransformer.getMemberId(owner, fieldName, fieldDesc),
-												"()" + fieldDesc, false));
+										new MethodInsnNode(methodOpcode, owner, methodName, "()" + fieldDesc, false));
 								instructions.remove(currentInsn);
 								return;
 							} else if (currentMethodInsn.name.startsWith("set")) {
 								String setType = currentMethodInsn.name.substring(3);
-								Type fieldType;
-								if (setType.equals("Boolean")) {
-									fieldType = Type.BOOLEAN_TYPE;
-								} else if (setType.equals("Byte")) {
-									fieldType = Type.BYTE_TYPE;
-								} else if (setType.equals("Char")) {
-									fieldType = Type.CHAR_TYPE;
-								} else if (setType.equals("Double")) {
-									fieldType = Type.DOUBLE_TYPE;
-								} else if (setType.equals("Float")) {
-									fieldType = Type.FLOAT_TYPE;
-								} else if (setType.equals("Int")) {
-									fieldType = Type.INT_TYPE;
-								} else if (setType.equals("Long")) {
-									fieldType = Type.LONG_TYPE;
-								} else if (setType.equals("Short")) {
-									fieldType = Type.SHORT_TYPE;
-								} else {
-									fieldType = Type.getType(typeName);
-								}
+								Type fieldType = getTypeFromSuffix(setType, typeName);
+								int methodOpcode = opcode == Opcodes.PUTSTATIC ? Opcodes.INVOKESTATIC
+										: Opcodes.INVOKEVIRTUAL;
 								String fieldDesc = fieldType.getDescriptor();
-								instructions.insert(currentInsn,
-										new MethodInsnNode(
-												opcode == Opcodes.PUTSTATIC ? Opcodes.INVOKESTATIC
-														: Opcodes.INVOKEVIRTUAL,
-												owner,
-												"access$setfield_"
-														+ AccessTransformer.getMemberId(owner, fieldName, fieldDesc),
-												"(" + fieldDesc + ")V", false));
+								String methodName = "access$setfield_"
+										+ AccessTransformer.getMemberId(owner, fieldName, fieldDesc);
+								instructions.insert(currentInsn, new MethodInsnNode(methodOpcode, owner, methodName,
+										"(" + fieldDesc + ")V", false));
 								instructions.remove(currentInsn);
 								return;
 							}
@@ -535,6 +516,10 @@ public class BytecodeTransformer implements IClassTransformer {
 		throw new RuntimeException("No get or set instruction reached");
 	}
 
+	/**
+	 * Gets the previous 'real' instruction (instruction with a positive opcode)
+	 * from the given instruction
+	 */
 	private static AbstractInsnNode lastRealInsn(AbstractInsnNode insn) {
 		do {
 			insn = insn.getPrevious();
@@ -542,6 +527,9 @@ public class BytecodeTransformer implements IClassTransformer {
 		return insn;
 	}
 
+	/**
+	 * Returns the integer that the given instruction would load onto the stack
+	 */
 	private static int getIntFromInsn(AbstractInsnNode insn) {
 		if (insn.getType() == AbstractInsnNode.INSN) {
 			return insn.getOpcode() - Opcodes.ICONST_0;
@@ -557,6 +545,10 @@ public class BytecodeTransformer implements IClassTransformer {
 		}
 	}
 
+	/**
+	 * Returns the internal name from the object that the given instruction
+	 * would load onto the stack, obfuscated if necessary
+	 */
 	private static String getInternalNameFromInsn(AbstractInsnNode insn) {
 		if (insn.getType() == AbstractInsnNode.LDC_INSN) {
 			Object cst = ((LdcInsnNode) insn).cst;
@@ -573,6 +565,10 @@ public class BytecodeTransformer implements IClassTransformer {
 		}
 	}
 
+	/**
+	 * Returns the internal name from the object that the given instruction
+	 * would load onto the stack, obfuscated if necessary
+	 */
 	private static String getDescriptorFromInsn(AbstractInsnNode insn) {
 		if (insn.getType() == AbstractInsnNode.LDC_INSN) {
 			Object cst = ((LdcInsnNode) insn).cst;
@@ -609,6 +605,9 @@ public class BytecodeTransformer implements IClassTransformer {
 		throw new RuntimeException("Cannot get a descriptor from the instruction " + Printer.OPCODES[insn.getOpcode()]);
 	}
 
+	/**
+	 * Returns the string that the given instruction would load onto the stack
+	 */
 	private static String getStringFromInsn(AbstractInsnNode insn) {
 		if (insn.getType() == AbstractInsnNode.LDC_INSN) {
 			LdcInsnNode ldcInsn = (LdcInsnNode) insn;
@@ -618,6 +617,49 @@ public class BytecodeTransformer implements IClassTransformer {
 		}
 	}
 
+	/**
+	 * Returns the type from the suffix of commonly used methods, such as
+	 * {@link InlineOps.MethodOp#argDouble(double)} or
+	 * {@link InlineOps.FieldOp#getLong()}
+	 */
+	private static Type getTypeFromSuffix(String suffix, String objectTypeName) {
+		if (suffix.equals("Boolean")) {
+			return Type.BOOLEAN_TYPE;
+		} else if (suffix.equals("Byte")) {
+			return Type.BYTE_TYPE;
+		} else if (suffix.equals("Char")) {
+			return Type.CHAR_TYPE;
+		} else if (suffix.equals("Double")) {
+			return Type.DOUBLE_TYPE;
+		} else if (suffix.equals("Float")) {
+			return Type.FLOAT_TYPE;
+		} else if (suffix.equals("Int")) {
+			return Type.INT_TYPE;
+		} else if (suffix.equals("Long")) {
+			return Type.LONG_TYPE;
+		} else if (suffix.equals("Short")) {
+			return Type.SHORT_TYPE;
+		} else if (suffix.equals("Void")) {
+			return Type.VOID_TYPE;
+		} else {
+			return Type.getType(objectTypeName);
+		}
+	}
+
+	/**
+	 * This method reads an internal name, member name or descriptor in the
+	 * obfuscated format and converts it to an unobfuscated format.<br/>
+	 * <br/>
+	 * The obfuscated format is exactly the same as an internal name, member
+	 * name or descriptor except that {} braces are used with names registered
+	 * through {@link net.earthcomputer.vimapi.core.classfinder.UsefulNames
+	 * UsefulNames} for obfuscated Minecraft names . For example, if you want
+	 * the internal name of Item, you use <code>{vim:Item}</code>, and if you
+	 * want a method descriptor with <code>ItemStack</code>, <code>String</code>
+	 * and <code>int</code> parameters and returning a
+	 * <code>RegistryNamespaced</code>, you would use
+	 * <code>(L{vim:ItemStack};Ljava/lang/String;I)L{vim:RegistryNamespaced};</code>
+	 */
 	private static String obfuscate(String unobfed) {
 		StringBuilder newString = new StringBuilder();
 		Matcher matcher = OBF_PATTERN.matcher(unobfed);

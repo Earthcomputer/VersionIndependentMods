@@ -4,6 +4,10 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+/**
+ * A class used to specify whether a named object should go before or after
+ * other named objects in a list.
+ */
 public class RelativePosition {
 
 	private List<String> before = Lists.newArrayList();

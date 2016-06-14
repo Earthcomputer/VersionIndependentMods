@@ -7,6 +7,11 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+/**
+ * A class visitor which wraps another class visitor and reports the
+ * field/method name and descriptor and possibly line number when an exception
+ * is thrown.
+ */
 public class DetailClassVisitor extends ClassVisitor {
 
 	private String currentMemberName;

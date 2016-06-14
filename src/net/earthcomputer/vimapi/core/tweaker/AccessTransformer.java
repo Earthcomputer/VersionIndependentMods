@@ -22,13 +22,18 @@ import com.google.common.collect.Maps;
 import net.minecraft.launchwrapper.IClassTransformer;
 
 /**
+ * This class aims to make a way to access private methods and fields. <br/>
+ * <br/>
+ * <b>Details:</b><br/>
  * If the class is not an interface, this transformer will add access methods
- * for all fields (even public ones), and all methods which are not &lt;init&gt;
- * or &lt;clinit&gt;. Setter methods will not be added for final fields. The
- * names of these methods have the format access$getfield_[fieldId],
- * access$setfield_[fieldId] or access$method[methodId]. The IDs can be obtained
- * through the getMemberId method of this class. These access methods are then
- * used by {@link BytecodeTransformer} for
+ * for all fields (even public ones), and all methods which are not
+ * <code>&lt;init&gt;</code> or <code>&lt;clinit&gt;</code>. Setter methods will
+ * not be added for final fields. The names of these methods have the format
+ * <code>access$getfield_[fieldId]</code>,
+ * <code>access$setfield_[fieldId]</code> or
+ * <code>access$method[methodId]</code>. The IDs can be obtained through the
+ * {@link #getMemberId} method of this class. These access methods are then used
+ * by {@link BytecodeTransformer} for
  * {@link net.earthcomputer.vimapi.core.InlineOps InlineOps}
  */
 public class AccessTransformer implements IClassTransformer {

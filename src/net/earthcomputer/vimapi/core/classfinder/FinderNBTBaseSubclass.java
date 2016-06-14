@@ -4,7 +4,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 
-public class FinderNBTBaseSubclass extends Finder {
+public class FinderNBTBaseSubclass implements IFinder {
 
 	@Override
 	public void accept(String className, ClassConstants constants, ClassNode node) {

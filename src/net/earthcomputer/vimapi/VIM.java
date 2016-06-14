@@ -16,6 +16,9 @@ import joptsimple.OptionSpec;
 import net.earthcomputer.vimapi.core.classfinder.ClassFinder;
 import net.earthcomputer.vimapi.core.classfinder.UsefulNames;
 
+/**
+ * Contains global variables and other useful things
+ */
 public class VIM {
 	public static final Logger LOGGER = LogManager.getLogger("VIM");
 	public static final String VERSION = "1.0";

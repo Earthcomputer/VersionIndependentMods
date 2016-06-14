@@ -9,6 +9,15 @@ import com.google.common.collect.Sets;
 import net.earthcomputer.vimapi.EnumSide;
 import net.earthcomputer.vimapi.VIM;
 
+/**
+ * A class which contains a reference to all the vanilla obfuscated names, with
+ * useful keys which should have the format <code>modid:key</code>. In order to
+ * add your own useful name, you must first call {@link #expect(String)} before
+ * {@link VIM#findClasses(java.net.URL[], String)} is called. Then, an
+ * {@link IFinder} can call {@link #found(String, String)}. If the useful name
+ * is not found by any <code>IFinder</code>, then an error is thrown and the
+ * game will not start.
+ */
 public class UsefulNames {
 
 	private static final Map<String, UsefulName> usefulNames = Maps.newHashMap();

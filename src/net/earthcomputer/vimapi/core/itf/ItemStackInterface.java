@@ -11,6 +11,9 @@ import net.earthcomputer.vimapi.core.InlineOps;
 import net.earthcomputer.vimapi.nbt.NBTBase;
 import net.earthcomputer.vimapi.nbt.NBTCompound;
 
+/**
+ * The class interfaces with the vanilla ItemStack class
+ */
 public class ItemStackInterface {
 
 	private ItemStackInterface() {

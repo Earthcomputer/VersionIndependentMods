@@ -7,6 +7,9 @@ import org.objectweb.asm.Opcodes;
 
 import com.google.common.collect.Sets;
 
+/**
+ * A data structure containing info from a class' constant pool
+ */
 public class ClassConstants {
 
 	private Set<String> classes = Sets.newHashSet();
@@ -26,6 +29,9 @@ public class ClassConstants {
 	private ClassConstants() {
 	}
 
+	/**
+	 * Reads the constant pool from the bytecode
+	 */
 	public static ClassConstants readFromBytes(byte[] bytes) {
 		if (readUnsignedShort(bytes, 6) > Opcodes.V1_8) {
 			throw new IllegalArgumentException();
