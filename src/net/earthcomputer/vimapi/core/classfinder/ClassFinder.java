@@ -19,6 +19,7 @@ import org.objectweb.asm.tree.ClassNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import net.earthcomputer.vimapi.VIM;
 import net.earthcomputer.vimapi.util.BeforeAfterComparable;
 import net.earthcomputer.vimapi.util.RelativePosition;
 
@@ -92,6 +93,8 @@ public class ClassFinder {
 		ClassConstants[] constants = new ClassConstants[numClasses];
 		ClassNode[] nodes = new ClassNode[numClasses];
 
+		VIM.LOGGER.info("Reading Minecraft JAR (" + entries.size() + " classes)");
+
 		int i = 0;
 		for (JarEntry entry : entries) {
 			byte[] classBytes = IOUtils.toByteArray(new BufferedInputStream(jar.getInputStream(entry)));
@@ -107,6 +110,8 @@ public class ClassFinder {
 		IOUtils.closeQuietly(jar);
 
 		Collections.sort(finderList);
+
+		VIM.LOGGER.info("Searching Minecraft JAR for what VIM needs (" + finderList.size() + " finders)");
 
 		for (BeforeAfterComparable<IFinder> comparableFinder : finderList) {
 			IFinder finder = comparableFinder.getValue();
