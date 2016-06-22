@@ -10,7 +10,7 @@ import org.objectweb.asm.tree.FieldNode;
 public class FinderItemStack implements IFinder {
 
 	private static final List<String> STRINGS = Arrays.asList("x", "@", "id", "Count", "Damage", "tag", "ench",
-			"display", "Name", "#%04d/%d%s");
+			"display", "Name");
 
 	@Override
 	public void accept(String className, ClassConstants constants, ClassNode node) {

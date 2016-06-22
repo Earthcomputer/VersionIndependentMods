@@ -1,0 +1,93 @@
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+	
+	repositories {
+		mavenCentral()
+		
+		maven {
+			url "http://files.minecraftforge.net/maven/"
+		}
+		
+		maven {
+			url "https://libraries.minecraft.net/"
+		}
+	}
+	
+	sourceCompatibility = 1.7
+	version = 0.1
+}
+
+task buildMain {
+	dependsOn ':vimapi:build'
+}
+
+task buildInstaller {
+	dependsOn ':installer:build'
+}
+
+task buildExampleMod {
+	dependsOn ':example_mod:build'
+}
+
+project(':vimapi') {
+	dependencies {
+		compile 'net.minecraftforge:forge:1.9-12.16.1.1887:universal'
+		compile	'org.ow2.asm:asm-debug-all:5.0.3'
+		compile	'org.apache.commons:commons-compress:1.8.1'
+		compile	'org.apache.commons:commons-lang3:3.3.2'
+		compile 'com.google.guava:guava:17.0'
+		compile 'net.sf.jopt-simple:jopt-simple:4.6'
+		compile('net.minecraft:launchwrapper:1.9') {
+			transitive = false
+		}
+		compile 'org.apache.logging.log4j:log4j-api:2.0-beta9'
+		compile 'com.google.code.gson:gson:2.2.4'
+	}
+	
+	jar {
+		manifest {
+			attributes 'FMLCorePlugin': 'net.earthcomputer.vimapi.core.tweaker.VIMTweakerFML'
+		}
+	}
+}
+
+project(':installer') {
+	configurations {
+		copyInJar
+		compile.extendsFrom copyInJar
+	}
+	
+	dependencies {
+		compileOnly(project(':vimapi')) {
+			transitive = false
+		}
+		copyInJar 'com.google.code.gson:gson:2.2.4'
+	}
+	
+	jar {
+		dependsOn project(':vimapi').jar
+		
+		baseName = 'vimapi'
+		appendix = 'installer'
+		
+		manifest {
+			attributes 'Main-Class': 'net.earthcomputer.vimapi.installer.Installer'
+		}
+		from {
+			project(':vimapi').jar.archivePath
+		}
+		from {
+			configurations.copyInJar.collect { it.isDirectory() ? it : zipTree(it) }
+		}
+	}
+}
+
+project(':example_mod') {
+	dependencies {
+		compile(project(':vimapi')) {
+			exclude module: 'forge'
+		}
+	}
+}

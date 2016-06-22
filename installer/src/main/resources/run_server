@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+local vimFile=
+for f in vimapi-*.jar do
+	if [vimFile != ""] then
+		error_tooManyVIMs
+	fi
+done
+if [vimFile = ""] then
+	error_noVIM
+fi
+
+java -jar "$vimFile" "$@"
+
+end
+
+function error_tooManyVIMs {
+	echo "Error: more than one VIM candidate found"
+	end
+}
+
+function error_noVIM {
+	echo "Error: no VIM found"
+	end
+}
+
+function end {
+	read -n1 -r -p "Press any key to continue . . ."
+	exit
+}
