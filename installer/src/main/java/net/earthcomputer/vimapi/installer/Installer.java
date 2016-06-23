@@ -44,14 +44,14 @@ public class Installer {
 				mcHome = new File(System.getProperty("user.home"), ".minecraft");
 			}
 			MC_HOME = mcHome;
-			RUN_SERVER_SCRIPT = "run_server.bat";
+			RUN_SERVER_SCRIPT = "run_vim_server.bat";
 		} else {
 			if (os.contains("mac")) {
 				MC_HOME = new File(System.getProperty("user.home"), "Library/Application Support/minecraft");
 			} else {
 				MC_HOME = new File(System.getProperty("user.home"), ".minecraft");
 			}
-			RUN_SERVER_SCRIPT = "run_server";
+			RUN_SERVER_SCRIPT = "run_vim_server";
 		}
 	}
 
@@ -173,6 +173,11 @@ public class Installer {
 			return false;
 		}
 
+		File modsDir = new File(serverDir, "VIMMods");
+		if (!modsDir.isDirectory()) {
+			modsDir.mkdir();
+		}
+
 		return true;
 	}
 
@@ -180,6 +185,10 @@ public class Installer {
 		File modsDir = new File(MC_HOME, "mods");
 		if (!modsDir.isDirectory()) {
 			modsDir.mkdirs();
+		}
+		modsDir = new File(MC_HOME, "VIMMods");
+		if (!modsDir.isDirectory()) {
+			modsDir.mkdir();
 		}
 		return createVIMJar(new File(modsDir, VIM_ARCHIVE_NAME));
 	}
@@ -192,6 +201,10 @@ public class Installer {
 		File modsDir = new File(serverDir, "mods");
 		if (!modsDir.isDirectory()) {
 			modsDir.mkdirs();
+		}
+		modsDir = new File(serverDir, "VIMMods");
+		if (!modsDir.isDirectory()) {
+			modsDir.mkdir();
 		}
 		return createVIMJar(new File(modsDir, VIM_ARCHIVE_NAME));
 	}

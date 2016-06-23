@@ -10,7 +10,7 @@ if [vimFile = ""] then
 	error_noVIM
 fi
 
-java -jar "$vimFile" "$@"
+exec java -jar "$vimFile" "$@"
 
 end
 

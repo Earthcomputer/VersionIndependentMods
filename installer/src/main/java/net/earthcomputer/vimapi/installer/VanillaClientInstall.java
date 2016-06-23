@@ -146,6 +146,11 @@ public class VanillaClientInstall {
 					Installer.TITLE, JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
+
+		File modsDir = new File(Installer.MC_HOME, "VIMMods");
+		if (!modsDir.isDirectory()) {
+			modsDir.mkdir();
+		}
 		return true;
 	}
 
