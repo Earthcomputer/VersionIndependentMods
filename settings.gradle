@@ -1,1 +1,1 @@
-include 'vimapi', 'installer', 'example_mod'
+include 'vimapi', 'installer', 'example_mod', 'prebuilt_project'

@@ -21,7 +21,7 @@ import net.earthcomputer.vimapi.core.classfinder.UsefulNames;
  */
 public class VIM {
 	public static final Logger LOGGER = LogManager.getLogger("VIM");
-	public static final String VERSION = "0.1";
+	public static final String VERSION = "a0.0.2";
 
 	private static boolean isLocked = false;
 	private static File gameDir;

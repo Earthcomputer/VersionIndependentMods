@@ -1,0 +1,21 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+repositories {
+	mavenCentral()
+	
+	maven {
+		url "https://libraries.minecraft.net"
+	}
+	
+    maven {
+        url "http://dl.bintray.com/earthcomputer/earthcomputer-maven" 
+    }
+}
+
+dependencies {
+	compile('net.earthcomputer.vimapi:vimapi:a0.0.2') {
+		exclude module: 'forge'
+	}
+}

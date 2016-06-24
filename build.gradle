@@ -9,26 +9,10 @@ buildscript {
 }
 
 subprojects {
-	apply plugin: 'java'
-	apply plugin: 'eclipse'
-	apply plugin: 'idea'
 	apply plugin: 'com.jfrog.bintray'
 	apply plugin: 'maven-publish'
-	
-	repositories {
-		mavenCentral()
-		
-		maven {
-			url "http://files.minecraftforge.net/maven/"
-		}
-		
-		maven {
-			url "https://libraries.minecraft.net/"
-		}
-	}
-	
-	sourceCompatibility = 1.7
-	version = 'a0.0.1'
+
+	version = 'a0.0.2'
 	
 	bintray {
 		user = System.getenv('BINTRAY_USER')
@@ -50,8 +34,35 @@ subprojects {
 	publishing {
 		publications {
 			VIM(MavenPublication) {
-				from components.java
 				groupId 'net.earthcomputer.vimapi'
+			}
+		}
+	}
+}
+
+configure (subprojects.findAll { it.name != 'prebuilt_project' }) {
+	apply plugin: 'java'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+	
+	repositories {
+		mavenCentral()
+		
+		maven {
+			url "http://files.minecraftforge.net/maven/"
+		}
+		
+		maven {
+			url "https://libraries.minecraft.net/"
+		}
+	}
+	
+	sourceCompatibility = 1.7
+	
+	publishing {
+		publications {
+			VIM {
+				from components.java
 			}
 		}
 	}
@@ -126,6 +137,26 @@ project(':example_mod') {
 	dependencies {
 		compile(project(':vimapi')) {
 			exclude module: 'forge'
+		}
+	}
+}
+
+project(':prebuilt_project') {
+	task buildPrebuiltProject(type:Zip) {
+		destinationDir = file('build/archives')
+		archiveName = 'prebuilt-project.zip'
+		
+		from '.'
+		exclude 'build/**'
+		rename 'packed_build\\.gradle', 'build.gradle'
+		rename 'packed\\.gitignore', '.gitignore'
+	}
+	
+	publishing {
+		publications {
+			VIM {
+				artifact buildPrebuiltProject
+			}
 		}
 	}
 }
