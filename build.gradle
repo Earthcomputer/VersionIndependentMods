@@ -1,7 +1,19 @@
+buildscript {
+	repositories {
+		jcenter()
+		mavenCentral()
+	}
+	dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
+    }
+}
+
 subprojects {
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
 	apply plugin: 'idea'
+	apply plugin: 'com.jfrog.bintray'
+	apply plugin: 'maven-publish'
 	
 	repositories {
 		mavenCentral()
@@ -16,7 +28,33 @@ subprojects {
 	}
 	
 	sourceCompatibility = 1.7
-	version = 0.1
+	version = 'a0.0.1'
+	
+	bintray {
+		user = System.getenv('BINTRAY_USER')
+		key = System.getenv('BINTRAY_KEY')
+		publications = ['VIM']
+		configurations = ['archives']
+		pkg {
+			repo = 'earthcomputer-maven'
+			name = 'VersionIndependentMods'
+			licenses = ['Apache-2.0']
+			version {
+				name = "${version}"
+				released = new Date()
+			}
+			vcsUrl = 'https://github.com/Earthcomputer/VersionIndependentMods'
+		}
+	}
+	
+	publishing {
+		publications {
+			VIM(MavenPublication) {
+				from components.java
+				groupId 'net.earthcomputer.vimapi'
+			}
+		}
+	}
 }
 
 task buildMain {
