@@ -2,12 +2,12 @@
 VersionIndependentMods, or VIM, is an API for mods that do not want to depend on the Minecraft version. VIM is compatible with all Minecraft versions since 1.8, and is also compatible with Forge. Its intention is that modders don't have to worry about the Minecraft version or updating their mods every time Minecraft updates.
 ## Installation
 ### For players and modpack creators
-- If you're using Forge (which you most likely are if you're adding VIM mods to a pre-existing modpack), download VIM from [this URL](Doesn't exist yet) and put it into the `mods` folder of your modpack.
-- If you're not using Forge, download the installer from [this URL](Doesn't exist yet) (or [this URL](Doesn't exist yet) on Windows), run it, and follow the instructions.
+- If you're using Forge (which you most likely are if you're adding VIM mods to a pre-existing modpack), download VIM from [this URL](http://dl.bintray.com/earthcomputer/earthcomputer-maven/net/earthcomputer/vimapi/vimapi/a0.0.2/vimapi-a0.0.2.jar) and put it into the `mods` folder of your modpack.
+- If you're not using Forge, download the installer from [this URL](http://dl.bintray.com/earthcomputer/earthcomputer-maven/net/earthcomputer/vimapi/installer/a0.0.2/installer-a0.0.2.jar), run it, and follow the instructions.
 - In both cases, mods that run with VIM should go in the `VIMMods` folder which is either automatically created by the installer or manually created next to the Forge `mods` folder.
 
 ### For modders
-- Download the pre-made project from [this URL](Doesn't exist yet) and extract it
+- Download the pre-made project from [this URL](http://dl.bintray.com/earthcomputer/earthcomputer-maven/net/earthcomputer/vimapi/prebuilt_project/a0.0.2/prebuilt_project-a0.0.2.zip) and extract it
 - Run one of the following commands in that directory (note, on Linux, `gradlew` should be replaced with `./gradlew`, and on Mac, `gradlew` should be replaced with `bash gradlew`) :
   - If using Eclipse, run `gradlew eclipse`
   - If using IDEA, run `gradlew idea`
