@@ -1,12 +1,15 @@
 package net.earthcomputer.vimapi;
 
+import net.earthcomputer.vimapi.annotations.Incubating;
 import net.earthcomputer.vimapi.nbt.NBTCompound;
 
 /**
  * Represents the vanilla ItemStack class
  */
+@Incubating
 public class ItemStack {
 
+	@Incubating
 	private String itemName;
 	private int damage;
 	private int stackSize;
@@ -14,18 +17,22 @@ public class ItemStack {
 
 	public static final int WILDCARD_DAMAGE = Short.MAX_VALUE;
 
+	@Incubating
 	public ItemStack(String itemName) {
 		this(itemName, 0);
 	}
 
+	@Incubating
 	public ItemStack(String itemName, int damage) {
 		this(itemName, damage, 1);
 	}
 
+	@Incubating
 	public ItemStack(String itemName, int damage, int stackSize) {
 		this(itemName, damage, stackSize, null);
 	}
 
+	@Incubating
 	public ItemStack(String itemName, int damage, int stackSize, NBTCompound tagCompound) {
 		this.itemName = itemName;
 		this.damage = damage;
@@ -33,6 +40,7 @@ public class ItemStack {
 		this.tagCompound = tagCompound;
 	}
 
+	@Incubating
 	public String getItemName() {
 		return itemName;
 	}

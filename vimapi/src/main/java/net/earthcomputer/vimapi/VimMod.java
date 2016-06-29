@@ -5,6 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import net.earthcomputer.vimapi.annotations.Incubating;
+
 /**
  * An annotation which must be put on a class if it is to be recognized as a VIM
  * mod.
@@ -19,6 +21,7 @@ public @interface VimMod {
 
 	String version();
 
+	@Incubating
 	String minimumMCVersion() default "";
 
 }

@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import net.earthcomputer.vimapi.annotations.Internal;
 import net.earthcomputer.vimapi.core.classfinder.ClassFinder;
 import net.earthcomputer.vimapi.core.classfinder.UsefulNames;
 
@@ -29,6 +30,7 @@ public class VIM {
 
 	private static EnumSide side;
 
+	@Internal
 	public static void findClasses(URL[] urls, String mainClass) {
 		ClassFinder.searchURLsForClasses(urls, mainClass);
 
@@ -42,6 +44,7 @@ public class VIM {
 		}
 	}
 
+	@Internal
 	public static List<String> acceptArgs(List<String> args, File gameDir) {
 		if (isLocked) {
 			throw new IllegalStateException("Cannot call VIM.acceptArgs() after it is locked");

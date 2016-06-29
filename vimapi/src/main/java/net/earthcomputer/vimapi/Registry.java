@@ -2,6 +2,7 @@ package net.earthcomputer.vimapi;
 
 import org.objectweb.asm.Opcodes;
 
+import net.earthcomputer.vimapi.annotations.Incubating;
 import net.earthcomputer.vimapi.core.ContainsInlineBytecode;
 import net.earthcomputer.vimapi.core.InlineOps;
 import net.earthcomputer.vimapi.core.itf.CraftingManagerInterface;
@@ -20,10 +21,12 @@ public class Registry {
 
 	// PUBLIC INTERFACE METHODS
 
+	@Incubating
 	public static void addShapedRecipe(ItemStack output, Object... input) {
 		INSTANCE.doAddShapedRecipe(output, input);
 	}
 
+	@Incubating
 	public static void addShapelessRecipe(ItemStack output, Object... input) {
 		INSTANCE.doAddShapelessRecipe(output, input);
 	}

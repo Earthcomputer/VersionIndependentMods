@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.objectweb.asm.Opcodes;
 
+import net.earthcomputer.vimapi.NoSuchItemException;
 import net.earthcomputer.vimapi.core.ChangeType;
 import net.earthcomputer.vimapi.core.ContainsInlineBytecode;
 import net.earthcomputer.vimapi.core.InlineOps;
@@ -19,8 +20,12 @@ public class ItemInterface {
 	@ContainsInlineBytecode
 	@ChangeType("L{vim:Item};")
 	private static Object getItemByName(String name) {
-		return InlineOps.method(Opcodes.INVOKESTATIC, "{vim:Item}", "{vim:Item.getByName}").returnType("L{vim:Item};")
-				.param(String.class).argObject(name).invokeObject();
+		Object item = InlineOps.method(Opcodes.INVOKESTATIC, "{vim:Item}", "{vim:Item.getByName}")
+				.returnType("L{vim:Item};").param(String.class).argObject(name).invokeObject();
+		if (item == null) {
+			throw new NoSuchItemException(name);
+		}
+		return item;
 	}
 
 	@ContainsInlineBytecode
